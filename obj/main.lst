@@ -1,0 +1,1021 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.0 #11528 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _INOV
+                                     13 	.globl _dec200mv
+                                     14 	.globl _inc200mv
+                                     15 	.globl _volt12
+                                     16 	.globl _volt9
+                                     17 	.globl _volt5
+                                     18 	.globl _EEROM_INIT
+                                     19 	.globl _TIM4_ClearFlag
+                                     20 	.globl _TIM4_GetFlagStatus
+                                     21 	.globl _TIM4_SetCounter
+                                     22 	.globl _TIM4_Cmd
+                                     23 	.globl _TIM4_TimeBaseInit
+                                     24 	.globl _GPIO_ReadInputPin
+                                     25 	.globl _GPIO_Init
+                                     26 	.globl _GPIO_DeInit
+                                     27 	.globl _FLASH_SetProgrammingTime
+                                     28 	.globl _FLASH_ReadByte
+                                     29 	.globl _FLASH_ProgramByte
+                                     30 	.globl _FLASH_DeInit
+                                     31 	.globl _FLASH_Unlock
+                                     32 	.globl _CLK_HSIPrescalerConfig
+                                     33 	.globl _dem2
+                                     34 	.globl _dem1
+                                     35 	.globl _changed
+                                     36 	.globl _t1
+                                     37 	.globl _t
+                                     38 	.globl _eep1
+                                     39 	.globl _eepselect
+                                     40 	.globl _eepdata
+                                     41 	.globl _delay_ms
+                                     42 ;--------------------------------------------------------
+                                     43 ; ram data
+                                     44 ;--------------------------------------------------------
+                                     45 	.area DATA
+      000000                         46 _eepdata::
+      000000                         47 	.ds 1
+      000001                         48 _eepselect::
+      000001                         49 	.ds 1
+      000002                         50 _eep1::
+      000002                         51 	.ds 1
+      000003                         52 _t::
+      000003                         53 	.ds 1
+      000004                         54 _t1::
+      000004                         55 	.ds 1
+                                     56 ;--------------------------------------------------------
+                                     57 ; ram data
+                                     58 ;--------------------------------------------------------
+                                     59 	.area INITIALIZED
+      000000                         60 _changed::
+      000000                         61 	.ds 2
+      000002                         62 _dem1::
+      000002                         63 	.ds 2
+      000004                         64 _dem2::
+      000004                         65 	.ds 1
+                                     66 ;--------------------------------------------------------
+                                     67 ; Stack segment in internal ram 
+                                     68 ;--------------------------------------------------------
+                                     69 	.area	SSEG
+      000000                         70 __start__stack:
+      000000                         71 	.ds	1
+                                     72 
+                                     73 ;--------------------------------------------------------
+                                     74 ; absolute external ram data
+                                     75 ;--------------------------------------------------------
+                                     76 	.area DABS (ABS)
+                                     77 
+                                     78 ; default segment ordering for linker
+                                     79 	.area HOME
+                                     80 	.area GSINIT
+                                     81 	.area GSFINAL
+                                     82 	.area CONST
+                                     83 	.area INITIALIZER
+                                     84 	.area CODE
+                                     85 
+                                     86 ;--------------------------------------------------------
+                                     87 ; interrupt vector 
+                                     88 ;--------------------------------------------------------
+                                     89 	.area HOME
+      000000                         90 __interrupt_vect:
+      000000 82v00u00u00             91 	int s_GSINIT ; reset
+                                     92 ;--------------------------------------------------------
+                                     93 ; global & static initialisations
+                                     94 ;--------------------------------------------------------
+                                     95 	.area HOME
+                                     96 	.area GSINIT
+                                     97 	.area GSFINAL
+                                     98 	.area GSINIT
+      000000                         99 __sdcc_gs_init_startup:
+      000000                        100 __sdcc_init_data:
+                                    101 ; stm8_genXINIT() start
+      000000 AEr00r00         [ 2]  102 	ldw x, #l_DATA
+      000003 27 07            [ 1]  103 	jreq	00002$
+      000005                        104 00001$:
+      000005 72 4FuFFuFF      [ 1]  105 	clr (s_DATA - 1, x)
+      000009 5A               [ 2]  106 	decw x
+      00000A 26 F9            [ 1]  107 	jrne	00001$
+      00000C                        108 00002$:
+      00000C AEr00r00         [ 2]  109 	ldw	x, #l_INITIALIZER
+      00000F 27 09            [ 1]  110 	jreq	00004$
+      000011                        111 00003$:
+      000011 D6uFFuFF         [ 1]  112 	ld	a, (s_INITIALIZER - 1, x)
+      000014 D7uFFuFF         [ 1]  113 	ld	(s_INITIALIZED - 1, x), a
+      000017 5A               [ 2]  114 	decw	x
+      000018 26 F7            [ 1]  115 	jrne	00003$
+      00001A                        116 00004$:
+                                    117 ; stm8_genXINIT() end
+                                    118 	.area GSFINAL
+      000000 CCr00r04         [ 2]  119 	jp	__sdcc_program_startup
+                                    120 ;--------------------------------------------------------
+                                    121 ; Home
+                                    122 ;--------------------------------------------------------
+                                    123 	.area HOME
+                                    124 	.area HOME
+      000004                        125 __sdcc_program_startup:
+      000004 CCr03rEB         [ 2]  126 	jp	_main
+                                    127 ;	return from main will return to caller
+                                    128 ;--------------------------------------------------------
+                                    129 ; code
+                                    130 ;--------------------------------------------------------
+                                    131 	.area CODE
+                                    132 ;	main.c: 23: void delay_ms(uint16_t u16Delay)
+                                    133 ;	-----------------------------------------
+                                    134 ;	 function delay_ms
+                                    135 ;	-----------------------------------------
+      000000                        136 _delay_ms:
+      000000 52 02            [ 2]  137 	sub	sp, #2
+                                    138 ;	main.c: 25: while (u16Delay) {
+      000002 16 05            [ 2]  139 	ldw	y, (0x05, sp)
+      000004 17 01            [ 2]  140 	ldw	(0x01, sp), y
+      000006                        141 00104$:
+      000006 1E 01            [ 2]  142 	ldw	x, (0x01, sp)
+      000008 27 1D            [ 1]  143 	jreq	00107$
+                                    144 ;	main.c: 26: TIM4_SetCounter(0);
+      00000A 4B 00            [ 1]  145 	push	#0x00
+      00000C CDr00r00         [ 4]  146 	call	_TIM4_SetCounter
+      00000F 84               [ 1]  147 	pop	a
+                                    148 ;	main.c: 27: TIM4_ClearFlag(TIM4_FLAG_UPDATE);
+      000010 4B 01            [ 1]  149 	push	#0x01
+      000012 CDr00r00         [ 4]  150 	call	_TIM4_ClearFlag
+      000015 84               [ 1]  151 	pop	a
+                                    152 ;	main.c: 28: while (TIM4_GetFlagStatus(TIM4_FLAG_UPDATE) == RESET) {
+      000016                        153 00101$:
+      000016 4B 01            [ 1]  154 	push	#0x01
+      000018 CDr00r00         [ 4]  155 	call	_TIM4_GetFlagStatus
+      00001B 5B 01            [ 2]  156 	addw	sp, #1
+      00001D 4D               [ 1]  157 	tnz	a
+      00001E 27 F6            [ 1]  158 	jreq	00101$
+                                    159 ;	main.c: 30: --u16Delay;
+      000020 1E 01            [ 2]  160 	ldw	x, (0x01, sp)
+      000022 5A               [ 2]  161 	decw	x
+      000023 1F 01            [ 2]  162 	ldw	(0x01, sp), x
+      000025 20 DF            [ 2]  163 	jra	00104$
+      000027                        164 00107$:
+                                    165 ;	main.c: 32: }
+      000027 5B 02            [ 2]  166 	addw	sp, #2
+      000029 81               [ 4]  167 	ret
+                                    168 ;	main.c: 33: void EEROM_INIT(void){
+                                    169 ;	-----------------------------------------
+                                    170 ;	 function EEROM_INIT
+                                    171 ;	-----------------------------------------
+      00002A                        172 _EEROM_INIT:
+                                    173 ;	main.c: 34: FLASH_DeInit();
+      00002A CDr00r00         [ 4]  174 	call	_FLASH_DeInit
+                                    175 ;	main.c: 35: FLASH_Unlock(FLASH_MEMTYPE_DATA);
+      00002D 4B F7            [ 1]  176 	push	#0xf7
+      00002F CDr00r00         [ 4]  177 	call	_FLASH_Unlock
+      000032 84               [ 1]  178 	pop	a
+                                    179 ;	main.c: 36: FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
+      000033 4B 00            [ 1]  180 	push	#0x00
+      000035 CDr00r00         [ 4]  181 	call	_FLASH_SetProgrammingTime
+      000038 84               [ 1]  182 	pop	a
+                                    183 ;	main.c: 37: }
+      000039 81               [ 4]  184 	ret
+                                    185 ;	main.c: 38: void volt5(void){
+                                    186 ;	-----------------------------------------
+                                    187 ;	 function volt5
+                                    188 ;	-----------------------------------------
+      00003A                        189 _volt5:
+                                    190 ;	main.c: 39: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);	//d+ = 0.6v
+      00003A 4B 00            [ 1]  191 	push	#0x00
+      00003C 4B 20            [ 1]  192 	push	#0x20
+      00003E 4B 0A            [ 1]  193 	push	#0x0a
+      000040 4B 50            [ 1]  194 	push	#0x50
+      000042 CDr00r00         [ 4]  195 	call	_GPIO_Init
+      000045 5B 04            [ 2]  196 	addw	sp, #4
+                                    197 ;	main.c: 40: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);	//d- = 0v
+      000047 4B E0            [ 1]  198 	push	#0xe0
+      000049 4B 40            [ 1]  199 	push	#0x40
+      00004B 4B 0A            [ 1]  200 	push	#0x0a
+      00004D 4B 50            [ 1]  201 	push	#0x50
+      00004F CDr00r00         [ 4]  202 	call	_GPIO_Init
+      000052 5B 04            [ 2]  203 	addw	sp, #4
+                                    204 ;	main.c: 41: GPIO_Init(GPIOC, GPIO_PIN_3, GPIO_MODE_OUT_PP_HIGH_FAST);	//led 3 on
+      000054 4B F0            [ 1]  205 	push	#0xf0
+      000056 4B 08            [ 1]  206 	push	#0x08
+      000058 4B 0A            [ 1]  207 	push	#0x0a
+      00005A 4B 50            [ 1]  208 	push	#0x50
+      00005C CDr00r00         [ 4]  209 	call	_GPIO_Init
+      00005F 5B 04            [ 2]  210 	addw	sp, #4
+                                    211 ;	main.c: 42: GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_PP_LOW_FAST);	//led 1 off
+      000061 4B E0            [ 1]  212 	push	#0xe0
+      000063 4B 02            [ 1]  213 	push	#0x02
+      000065 4B 0F            [ 1]  214 	push	#0x0f
+      000067 4B 50            [ 1]  215 	push	#0x50
+      000069 CDr00r00         [ 4]  216 	call	_GPIO_Init
+      00006C 5B 04            [ 2]  217 	addw	sp, #4
+                                    218 ;	main.c: 43: GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_OUT_PP_LOW_FAST);	//led 4 off
+      00006E 4B E0            [ 1]  219 	push	#0xe0
+      000070 4B 10            [ 1]  220 	push	#0x10
+      000072 4B 0A            [ 1]  221 	push	#0x0a
+      000074 4B 50            [ 1]  222 	push	#0x50
+      000076 CDr00r00         [ 4]  223 	call	_GPIO_Init
+      000079 5B 04            [ 2]  224 	addw	sp, #4
+                                    225 ;	main.c: 44: EEROM_INIT();
+      00007B CDr00r2A         [ 4]  226 	call	_EEROM_INIT
+                                    227 ;	main.c: 45: FLASH_ProgramByte(0X4000, 0X25);		//0x4000 address is the first eeprom address
+      00007E 4B 25            [ 1]  228 	push	#0x25
+      000080 4B 00            [ 1]  229 	push	#0x00
+      000082 4B 40            [ 1]  230 	push	#0x40
+      000084 5F               [ 1]  231 	clrw	x
+      000085 89               [ 2]  232 	pushw	x
+      000086 CDr00r00         [ 4]  233 	call	_FLASH_ProgramByte
+      000089 5B 05            [ 2]  234 	addw	sp, #5
+                                    235 ;	main.c: 46: delay_ms(20);
+      00008B 4B 14            [ 1]  236 	push	#0x14
+      00008D 4B 00            [ 1]  237 	push	#0x00
+      00008F CDr00r00         [ 4]  238 	call	_delay_ms
+      000092 5B 02            [ 2]  239 	addw	sp, #2
+                                    240 ;	main.c: 47: FLASH_ProgramByte(0X4001, 0X00);		//0x4001 address is the second eeprom address
+      000094 4B 00            [ 1]  241 	push	#0x00
+      000096 4B 01            [ 1]  242 	push	#0x01
+      000098 4B 40            [ 1]  243 	push	#0x40
+      00009A 5F               [ 1]  244 	clrw	x
+      00009B 89               [ 2]  245 	pushw	x
+      00009C CDr00r00         [ 4]  246 	call	_FLASH_ProgramByte
+      00009F 5B 05            [ 2]  247 	addw	sp, #5
+                                    248 ;	main.c: 49: }
+      0000A1 81               [ 4]  249 	ret
+                                    250 ;	main.c: 50: void volt9(void){
+                                    251 ;	-----------------------------------------
+                                    252 ;	 function volt9
+                                    253 ;	-----------------------------------------
+      0000A2                        254 _volt9:
+                                    255 ;	main.c: 51: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);	//d+ = 3.3v
+      0000A2 4B F0            [ 1]  256 	push	#0xf0
+      0000A4 4B 20            [ 1]  257 	push	#0x20
+      0000A6 4B 0A            [ 1]  258 	push	#0x0a
+      0000A8 4B 50            [ 1]  259 	push	#0x50
+      0000AA CDr00r00         [ 4]  260 	call	_GPIO_Init
+      0000AD 5B 04            [ 2]  261 	addw	sp, #4
+                                    262 ;	main.c: 52: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);	//d- = 0.6v
+      0000AF 4B 00            [ 1]  263 	push	#0x00
+      0000B1 4B 40            [ 1]  264 	push	#0x40
+      0000B3 4B 0A            [ 1]  265 	push	#0x0a
+      0000B5 4B 50            [ 1]  266 	push	#0x50
+      0000B7 CDr00r00         [ 4]  267 	call	_GPIO_Init
+      0000BA 5B 04            [ 2]  268 	addw	sp, #4
+                                    269 ;	main.c: 53: GPIO_Init(GPIOD, GPIO_PIN_3, GPIO_MODE_OUT_PP_HIGH_FAST);	//led 2 on
+      0000BC 4B F0            [ 1]  270 	push	#0xf0
+      0000BE 4B 08            [ 1]  271 	push	#0x08
+      0000C0 4B 0F            [ 1]  272 	push	#0x0f
+      0000C2 4B 50            [ 1]  273 	push	#0x50
+      0000C4 CDr00r00         [ 4]  274 	call	_GPIO_Init
+      0000C7 5B 04            [ 2]  275 	addw	sp, #4
+                                    276 ;	main.c: 54: GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_OUT_PP_LOW_FAST);	//led 4 off
+      0000C9 4B E0            [ 1]  277 	push	#0xe0
+      0000CB 4B 10            [ 1]  278 	push	#0x10
+      0000CD 4B 0A            [ 1]  279 	push	#0x0a
+      0000CF 4B 50            [ 1]  280 	push	#0x50
+      0000D1 CDr00r00         [ 4]  281 	call	_GPIO_Init
+      0000D4 5B 04            [ 2]  282 	addw	sp, #4
+                                    283 ;	main.c: 55: GPIO_Init(GPIOC, GPIO_PIN_3, GPIO_MODE_OUT_PP_LOW_FAST);	//led 3 off
+      0000D6 4B E0            [ 1]  284 	push	#0xe0
+      0000D8 4B 08            [ 1]  285 	push	#0x08
+      0000DA 4B 0A            [ 1]  286 	push	#0x0a
+      0000DC 4B 50            [ 1]  287 	push	#0x50
+      0000DE CDr00r00         [ 4]  288 	call	_GPIO_Init
+      0000E1 5B 04            [ 2]  289 	addw	sp, #4
+                                    290 ;	main.c: 56: EEROM_INIT();
+      0000E3 CDr00r2A         [ 4]  291 	call	_EEROM_INIT
+                                    292 ;	main.c: 57: FLASH_ProgramByte(0X4000, 0X45);		//0x4000 address is the first eeprom address
+      0000E6 4B 45            [ 1]  293 	push	#0x45
+      0000E8 4B 00            [ 1]  294 	push	#0x00
+      0000EA 4B 40            [ 1]  295 	push	#0x40
+      0000EC 5F               [ 1]  296 	clrw	x
+      0000ED 89               [ 2]  297 	pushw	x
+      0000EE CDr00r00         [ 4]  298 	call	_FLASH_ProgramByte
+      0000F1 5B 05            [ 2]  299 	addw	sp, #5
+                                    300 ;	main.c: 58: delay_ms(20);
+      0000F3 4B 14            [ 1]  301 	push	#0x14
+      0000F5 4B 00            [ 1]  302 	push	#0x00
+      0000F7 CDr00r00         [ 4]  303 	call	_delay_ms
+      0000FA 5B 02            [ 2]  304 	addw	sp, #2
+                                    305 ;	main.c: 59: FLASH_ProgramByte(0X4001, 0X00);		//0x4000 address is the first eeprom address
+      0000FC 4B 00            [ 1]  306 	push	#0x00
+      0000FE 4B 01            [ 1]  307 	push	#0x01
+      000100 4B 40            [ 1]  308 	push	#0x40
+      000102 5F               [ 1]  309 	clrw	x
+      000103 89               [ 2]  310 	pushw	x
+      000104 CDr00r00         [ 4]  311 	call	_FLASH_ProgramByte
+      000107 5B 05            [ 2]  312 	addw	sp, #5
+                                    313 ;	main.c: 61: }
+      000109 81               [ 4]  314 	ret
+                                    315 ;	main.c: 62: void volt12(void){
+                                    316 ;	-----------------------------------------
+                                    317 ;	 function volt12
+                                    318 ;	-----------------------------------------
+      00010A                        319 _volt12:
+                                    320 ;	main.c: 63: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);	//d+ = 0.6v
+      00010A 4B 00            [ 1]  321 	push	#0x00
+      00010C 4B 20            [ 1]  322 	push	#0x20
+      00010E 4B 0A            [ 1]  323 	push	#0x0a
+      000110 4B 50            [ 1]  324 	push	#0x50
+      000112 CDr00r00         [ 4]  325 	call	_GPIO_Init
+      000115 5B 04            [ 2]  326 	addw	sp, #4
+                                    327 ;	main.c: 64: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);	//d- = 0.6v
+      000117 4B 00            [ 1]  328 	push	#0x00
+      000119 4B 40            [ 1]  329 	push	#0x40
+      00011B 4B 0A            [ 1]  330 	push	#0x0a
+      00011D 4B 50            [ 1]  331 	push	#0x50
+      00011F CDr00r00         [ 4]  332 	call	_GPIO_Init
+      000122 5B 04            [ 2]  333 	addw	sp, #4
+                                    334 ;	main.c: 65: GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_PP_HIGH_FAST);	//led 1 on
+      000124 4B F0            [ 1]  335 	push	#0xf0
+      000126 4B 02            [ 1]  336 	push	#0x02
+      000128 4B 0F            [ 1]  337 	push	#0x0f
+      00012A 4B 50            [ 1]  338 	push	#0x50
+      00012C CDr00r00         [ 4]  339 	call	_GPIO_Init
+      00012F 5B 04            [ 2]  340 	addw	sp, #4
+                                    341 ;	main.c: 66: GPIO_Init(GPIOD, GPIO_PIN_3, GPIO_MODE_OUT_PP_LOW_FAST);	//led 2 off
+      000131 4B E0            [ 1]  342 	push	#0xe0
+      000133 4B 08            [ 1]  343 	push	#0x08
+      000135 4B 0F            [ 1]  344 	push	#0x0f
+      000137 4B 50            [ 1]  345 	push	#0x50
+      000139 CDr00r00         [ 4]  346 	call	_GPIO_Init
+      00013C 5B 04            [ 2]  347 	addw	sp, #4
+                                    348 ;	main.c: 67: EEROM_INIT();
+      00013E CDr00r2A         [ 4]  349 	call	_EEROM_INIT
+                                    350 ;	main.c: 68: FLASH_ProgramByte(0X4000, 0X60);		//0x4000 address is the first eeprom address
+      000141 4B 60            [ 1]  351 	push	#0x60
+      000143 4B 00            [ 1]  352 	push	#0x00
+      000145 4B 40            [ 1]  353 	push	#0x40
+      000147 5F               [ 1]  354 	clrw	x
+      000148 89               [ 2]  355 	pushw	x
+      000149 CDr00r00         [ 4]  356 	call	_FLASH_ProgramByte
+      00014C 5B 05            [ 2]  357 	addw	sp, #5
+                                    358 ;	main.c: 69: delay_ms(20);
+      00014E 4B 14            [ 1]  359 	push	#0x14
+      000150 4B 00            [ 1]  360 	push	#0x00
+      000152 CDr00r00         [ 4]  361 	call	_delay_ms
+      000155 5B 02            [ 2]  362 	addw	sp, #2
+                                    363 ;	main.c: 70: FLASH_ProgramByte(0X4001, 0X00);
+      000157 4B 00            [ 1]  364 	push	#0x00
+      000159 4B 01            [ 1]  365 	push	#0x01
+      00015B 4B 40            [ 1]  366 	push	#0x40
+      00015D 5F               [ 1]  367 	clrw	x
+      00015E 89               [ 2]  368 	pushw	x
+      00015F CDr00r00         [ 4]  369 	call	_FLASH_ProgramByte
+      000162 5B 05            [ 2]  370 	addw	sp, #5
+                                    371 ;	main.c: 71: }
+      000164 81               [ 4]  372 	ret
+                                    373 ;	main.c: 72: void inc200mv(){        //3.3v to 0.6v -> increase 200mv 
+                                    374 ;	-----------------------------------------
+                                    375 ;	 function inc200mv
+                                    376 ;	-----------------------------------------
+      000165                        377 _inc200mv:
+                                    378 ;	main.c: 73: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_OUT_PP_HIGH_FAST);	//d+ = 3.3v
+      000165 4B F0            [ 1]  379 	push	#0xf0
+      000167 4B 20            [ 1]  380 	push	#0x20
+      000169 4B 0A            [ 1]  381 	push	#0x0a
+      00016B 4B 50            [ 1]  382 	push	#0x50
+      00016D CDr00r00         [ 4]  383 	call	_GPIO_Init
+      000170 5B 04            [ 2]  384 	addw	sp, #4
+                                    385 ;	main.c: 74: delay_ms(20);
+      000172 4B 14            [ 1]  386 	push	#0x14
+      000174 4B 00            [ 1]  387 	push	#0x00
+      000176 CDr00r00         [ 4]  388 	call	_delay_ms
+      000179 5B 02            [ 2]  389 	addw	sp, #2
+                                    390 ;	main.c: 75: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);	//d+ = 0.6v
+      00017B 4B 00            [ 1]  391 	push	#0x00
+      00017D 4B 20            [ 1]  392 	push	#0x20
+      00017F 4B 0A            [ 1]  393 	push	#0x0a
+      000181 4B 50            [ 1]  394 	push	#0x50
+      000183 CDr00r00         [ 4]  395 	call	_GPIO_Init
+      000186 5B 04            [ 2]  396 	addw	sp, #4
+                                    397 ;	main.c: 76: delay_ms(20);
+      000188 4B 14            [ 1]  398 	push	#0x14
+      00018A 4B 00            [ 1]  399 	push	#0x00
+      00018C CDr00r00         [ 4]  400 	call	_delay_ms
+      00018F 5B 02            [ 2]  401 	addw	sp, #2
+                                    402 ;	main.c: 77: }
+      000191 81               [ 4]  403 	ret
+                                    404 ;	main.c: 78: void dec200mv(){        //0.6v to 3.3v -> decrease 200mv 
+                                    405 ;	-----------------------------------------
+                                    406 ;	 function dec200mv
+                                    407 ;	-----------------------------------------
+      000192                        408 _dec200mv:
+                                    409 ;	main.c: 79: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);	//d- = 0.6v
+      000192 4B 00            [ 1]  410 	push	#0x00
+      000194 4B 40            [ 1]  411 	push	#0x40
+      000196 4B 0A            [ 1]  412 	push	#0x0a
+      000198 4B 50            [ 1]  413 	push	#0x50
+      00019A CDr00r00         [ 4]  414 	call	_GPIO_Init
+      00019D 5B 04            [ 2]  415 	addw	sp, #4
+                                    416 ;	main.c: 80: delay_ms(20);
+      00019F 4B 14            [ 1]  417 	push	#0x14
+      0001A1 4B 00            [ 1]  418 	push	#0x00
+      0001A3 CDr00r00         [ 4]  419 	call	_delay_ms
+      0001A6 5B 02            [ 2]  420 	addw	sp, #2
+                                    421 ;	main.c: 81: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_HIGH_FAST);	//d+ = 3.3v
+      0001A8 4B F0            [ 1]  422 	push	#0xf0
+      0001AA 4B 40            [ 1]  423 	push	#0x40
+      0001AC 4B 0A            [ 1]  424 	push	#0x0a
+      0001AE 4B 50            [ 1]  425 	push	#0x50
+      0001B0 CDr00r00         [ 4]  426 	call	_GPIO_Init
+      0001B3 5B 04            [ 2]  427 	addw	sp, #4
+                                    428 ;	main.c: 82: delay_ms(20);    
+      0001B5 4B 14            [ 1]  429 	push	#0x14
+      0001B7 4B 00            [ 1]  430 	push	#0x00
+      0001B9 CDr00r00         [ 4]  431 	call	_delay_ms
+      0001BC 5B 02            [ 2]  432 	addw	sp, #2
+                                    433 ;	main.c: 83: }
+      0001BE 81               [ 4]  434 	ret
+                                    435 ;	main.c: 84: void INOV(void){
+                                    436 ;	-----------------------------------------
+                                    437 ;	 function INOV
+                                    438 ;	-----------------------------------------
+      0001BF                        439 _INOV:
+      0001BF 52 04            [ 2]  440 	sub	sp, #4
+                                    441 ;	main.c: 86: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);	//d+ = 0.6v
+      0001C1 4B 00            [ 1]  442 	push	#0x00
+      0001C3 4B 20            [ 1]  443 	push	#0x20
+      0001C5 4B 0A            [ 1]  444 	push	#0x0a
+      0001C7 4B 50            [ 1]  445 	push	#0x50
+      0001C9 CDr00r00         [ 4]  446 	call	_GPIO_Init
+      0001CC 5B 04            [ 2]  447 	addw	sp, #4
+                                    448 ;	main.c: 87: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);	//d- = 0v
+      0001CE 4B E0            [ 1]  449 	push	#0xe0
+      0001D0 4B 40            [ 1]  450 	push	#0x40
+      0001D2 4B 0A            [ 1]  451 	push	#0x0a
+      0001D4 4B 50            [ 1]  452 	push	#0x50
+      0001D6 CDr00r00         [ 4]  453 	call	_GPIO_Init
+      0001D9 5B 04            [ 2]  454 	addw	sp, #4
+                                    455 ;	main.c: 89: delay_ms(500);
+      0001DB 4B F4            [ 1]  456 	push	#0xf4
+      0001DD 4B 01            [ 1]  457 	push	#0x01
+      0001DF CDr00r00         [ 4]  458 	call	_delay_ms
+      0001E2 5B 02            [ 2]  459 	addw	sp, #2
+                                    460 ;	main.c: 90: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);	//d+ = 0.6v
+      0001E4 4B 00            [ 1]  461 	push	#0x00
+      0001E6 4B 20            [ 1]  462 	push	#0x20
+      0001E8 4B 0A            [ 1]  463 	push	#0x0a
+      0001EA 4B 50            [ 1]  464 	push	#0x50
+      0001EC CDr00r00         [ 4]  465 	call	_GPIO_Init
+      0001EF 5B 04            [ 2]  466 	addw	sp, #4
+                                    467 ;	main.c: 91: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_HIGH_FAST);	//d- = 3.3v
+      0001F1 4B F0            [ 1]  468 	push	#0xf0
+      0001F3 4B 40            [ 1]  469 	push	#0x40
+      0001F5 4B 0A            [ 1]  470 	push	#0x0a
+      0001F7 4B 50            [ 1]  471 	push	#0x50
+      0001F9 CDr00r00         [ 4]  472 	call	_GPIO_Init
+      0001FC 5B 04            [ 2]  473 	addw	sp, #4
+                                    474 ;	main.c: 92: GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_OUT_PP_HIGH_FAST);	//led 4 on
+      0001FE 4B F0            [ 1]  475 	push	#0xf0
+      000200 4B 10            [ 1]  476 	push	#0x10
+      000202 4B 0A            [ 1]  477 	push	#0x0a
+      000204 4B 50            [ 1]  478 	push	#0x50
+      000206 CDr00r00         [ 4]  479 	call	_GPIO_Init
+      000209 5B 04            [ 2]  480 	addw	sp, #4
+                                    481 ;	main.c: 93: GPIO_Init(GPIOC, GPIO_PIN_3, GPIO_MODE_OUT_PP_LOW_FAST);	//led 3 off
+      00020B 4B E0            [ 1]  482 	push	#0xe0
+      00020D 4B 08            [ 1]  483 	push	#0x08
+      00020F 4B 0A            [ 1]  484 	push	#0x0a
+      000211 4B 50            [ 1]  485 	push	#0x50
+      000213 CDr00r00         [ 4]  486 	call	_GPIO_Init
+      000216 5B 04            [ 2]  487 	addw	sp, #4
+                                    488 ;	main.c: 95: if(changed == 0){           //the first time controller run
+      000218 CEu00u00         [ 2]  489 	ldw	x, _changed+0
+      00021B 27 03            [ 1]  490 	jreq	00215$
+      00021D CCr02rCA         [ 2]  491 	jp	00109$
+      000220                        492 00215$:
+                                    493 ;	main.c: 96: EEROM_INIT();
+      000220 CDr00r2A         [ 4]  494 	call	_EEROM_INIT
+                                    495 ;	main.c: 97: FLASH_ProgramByte(0X4001, 0X01);		//0x4000 address is the first eeprom address
+      000223 4B 01            [ 1]  496 	push	#0x01
+      000225 4B 01            [ 1]  497 	push	#0x01
+      000227 4B 40            [ 1]  498 	push	#0x40
+      000229 5F               [ 1]  499 	clrw	x
+      00022A 89               [ 2]  500 	pushw	x
+      00022B CDr00r00         [ 4]  501 	call	_FLASH_ProgramByte
+      00022E 5B 05            [ 2]  502 	addw	sp, #5
+                                    503 ;	main.c: 98: delay_ms(20);   //delay20ms
+      000230 4B 14            [ 1]  504 	push	#0x14
+      000232 4B 00            [ 1]  505 	push	#0x00
+      000234 CDr00r00         [ 4]  506 	call	_delay_ms
+      000237 5B 02            [ 2]  507 	addw	sp, #2
+                                    508 ;	main.c: 99: FLASH_ProgramByte(0X4000, 0X25);		//0x4000 address is the first eeprom address
+      000239 4B 25            [ 1]  509 	push	#0x25
+      00023B 4B 00            [ 1]  510 	push	#0x00
+      00023D 4B 40            [ 1]  511 	push	#0x40
+      00023F 5F               [ 1]  512 	clrw	x
+      000240 89               [ 2]  513 	pushw	x
+      000241 CDr00r00         [ 4]  514 	call	_FLASH_ProgramByte
+      000244 5B 05            [ 2]  515 	addw	sp, #5
+                                    516 ;	main.c: 100: delay_ms(500);   //delay 0.5s button delay
+      000246 4B F4            [ 1]  517 	push	#0xf4
+      000248 4B 01            [ 1]  518 	push	#0x01
+      00024A CDr00r00         [ 4]  519 	call	_delay_ms
+      00024D 5B 02            [ 2]  520 	addw	sp, #2
+                                    521 ;	main.c: 101: while(GPIO_ReadInputPin(GPIOD,GPIO_PIN_4)!=0){          // out loop if RA2 = 0 (press mode button)
+      00024F                        522 00105$:
+      00024F 4B 10            [ 1]  523 	push	#0x10
+      000251 4B 0F            [ 1]  524 	push	#0x0f
+      000253 4B 50            [ 1]  525 	push	#0x50
+      000255 CDr00r00         [ 4]  526 	call	_GPIO_ReadInputPin
+      000258 5B 03            [ 2]  527 	addw	sp, #3
+      00025A 4D               [ 1]  528 	tnz	a
+      00025B 27 6A            [ 1]  529 	jreq	00107$
+                                    530 ;	main.c: 102: if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_5)==0){         // increase 0,2V if we press button 2
+      00025D 4B 20            [ 1]  531 	push	#0x20
+      00025F 4B 0F            [ 1]  532 	push	#0x0f
+      000261 4B 50            [ 1]  533 	push	#0x50
+      000263 CDr00r00         [ 4]  534 	call	_GPIO_ReadInputPin
+      000266 5B 03            [ 2]  535 	addw	sp, #3
+      000268 4D               [ 1]  536 	tnz	a
+      000269 26 26            [ 1]  537 	jrne	00102$
+                                    538 ;	main.c: 103: inc200mv();
+      00026B CDr01r65         [ 4]  539 	call	_inc200mv
+                                    540 ;	main.c: 104: dem2 ++;                           
+      00026E 72 5Cu00u04      [ 1]  541 	inc	_dem2+0
+                                    542 ;	main.c: 105: t = 0x25 + dem2;                
+      000272 C6u00u04         [ 1]  543 	ld	a, _dem2+0
+      000275 AB 25            [ 1]  544 	add	a, #0x25
+      000277 C7u00u03         [ 1]  545 	ld	_t+0, a
+                                    546 ;	main.c: 106: FLASH_ProgramByte(0X4000, t);		//0x4000 address is the first eeprom address
+      00027A 3Bu00u03         [ 1]  547 	push	_t+0
+      00027D 4B 00            [ 1]  548 	push	#0x00
+      00027F 4B 40            [ 1]  549 	push	#0x40
+      000281 5F               [ 1]  550 	clrw	x
+      000282 89               [ 2]  551 	pushw	x
+      000283 CDr00r00         [ 4]  552 	call	_FLASH_ProgramByte
+      000286 5B 05            [ 2]  553 	addw	sp, #5
+                                    554 ;	main.c: 107: delay_ms(500);   //delay 0.5s         //button delay
+      000288 4B F4            [ 1]  555 	push	#0xf4
+      00028A 4B 01            [ 1]  556 	push	#0x01
+      00028C CDr00r00         [ 4]  557 	call	_delay_ms
+      00028F 5B 02            [ 2]  558 	addw	sp, #2
+      000291                        559 00102$:
+                                    560 ;	main.c: 109: if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_6)==0){         // decrease 0,2V if we press button 3
+      000291 4B 40            [ 1]  561 	push	#0x40
+      000293 4B 0F            [ 1]  562 	push	#0x0f
+      000295 4B 50            [ 1]  563 	push	#0x50
+      000297 CDr00r00         [ 4]  564 	call	_GPIO_ReadInputPin
+      00029A 5B 03            [ 2]  565 	addw	sp, #3
+      00029C 4D               [ 1]  566 	tnz	a
+      00029D 26 B0            [ 1]  567 	jrne	00105$
+                                    568 ;	main.c: 110: dec200mv();
+      00029F CDr01r92         [ 4]  569 	call	_dec200mv
+                                    570 ;	main.c: 111: dem2 --;                            
+      0002A2 72 5Au00u04      [ 1]  571 	dec	_dem2+0
+                                    572 ;	main.c: 112: t1 = 0x25 + dem2;
+      0002A6 C6u00u04         [ 1]  573 	ld	a, _dem2+0
+      0002A9 AB 25            [ 1]  574 	add	a, #0x25
+      0002AB C7u00u04         [ 1]  575 	ld	_t1+0, a
+                                    576 ;	main.c: 113: FLASH_ProgramByte(0X4000, t1);		//0x4000 address is the first eeprom address
+      0002AE 3Bu00u04         [ 1]  577 	push	_t1+0
+      0002B1 4B 00            [ 1]  578 	push	#0x00
+      0002B3 4B 40            [ 1]  579 	push	#0x40
+      0002B5 5F               [ 1]  580 	clrw	x
+      0002B6 89               [ 2]  581 	pushw	x
+      0002B7 CDr00r00         [ 4]  582 	call	_FLASH_ProgramByte
+      0002BA 5B 05            [ 2]  583 	addw	sp, #5
+                                    584 ;	main.c: 114: delay_ms(500);   //delay 0.5s         //button delay
+      0002BC 4B F4            [ 1]  585 	push	#0xf4
+      0002BE 4B 01            [ 1]  586 	push	#0x01
+      0002C0 CDr00r00         [ 4]  587 	call	_delay_ms
+      0002C3 5B 02            [ 2]  588 	addw	sp, #2
+      0002C5 20 88            [ 2]  589 	jra	00105$
+      0002C7                        590 00107$:
+                                    591 ;	main.c: 117: volt5();
+      0002C7 CDr00r3A         [ 4]  592 	call	_volt5
+      0002CA                        593 00109$:
+                                    594 ;	main.c: 119: if(changed == 1){
+      0002CA CEu00u00         [ 2]  595 	ldw	x, _changed+0
+      0002CD 5A               [ 2]  596 	decw	x
+      0002CE 27 03            [ 1]  597 	jreq	00221$
+      0002D0 CCr03rE8         [ 2]  598 	jp	00131$
+      0002D3                        599 00221$:
+                                    600 ;	main.c: 124: EEROM_INIT();
+      0002D3 CDr00r2A         [ 4]  601 	call	_EEROM_INIT
+                                    602 ;	main.c: 125: FLASH_ProgramByte(0X4001, 0X01);		//0x4000 address is the first eeprom address
+      0002D6 4B 01            [ 1]  603 	push	#0x01
+      0002D8 4B 01            [ 1]  604 	push	#0x01
+      0002DA 4B 40            [ 1]  605 	push	#0x40
+      0002DC 5F               [ 1]  606 	clrw	x
+      0002DD 89               [ 2]  607 	pushw	x
+      0002DE CDr00r00         [ 4]  608 	call	_FLASH_ProgramByte
+      0002E1 5B 05            [ 2]  609 	addw	sp, #5
+                                    610 ;	main.c: 126: delay_ms(20);   //delay20ms    
+      0002E3 4B 14            [ 1]  611 	push	#0x14
+      0002E5 4B 00            [ 1]  612 	push	#0x00
+      0002E7 CDr00r00         [ 4]  613 	call	_delay_ms
+      0002EA 5B 02            [ 2]  614 	addw	sp, #2
+                                    615 ;	main.c: 127: eep1 = FLASH_ReadByte(0x4000);    		
+      0002EC 4B 00            [ 1]  616 	push	#0x00
+      0002EE 4B 40            [ 1]  617 	push	#0x40
+      0002F0 5F               [ 1]  618 	clrw	x
+      0002F1 89               [ 2]  619 	pushw	x
+      0002F2 CDr00r00         [ 4]  620 	call	_FLASH_ReadByte
+      0002F5 5B 04            [ 2]  621 	addw	sp, #4
+                                    622 ;	main.c: 128: if(eep1 >= 0x25){    //if we increase voltage
+      0002F7 C7u00u02         [ 1]  623 	ld	_eep1+0, a
+      0002FA A1 25            [ 1]  624 	cp	a, #0x25
+      0002FC 25 2A            [ 1]  625 	jrc	00112$
+                                    626 ;	main.c: 130: for(int i = 0x00; i<= eep1-0x25 ;i++){
+      0002FE 5F               [ 1]  627 	clrw	x
+      0002FF 1F 03            [ 2]  628 	ldw	(0x03, sp), x
+      000301                        629 00126$:
+      000301 C6u00u02         [ 1]  630 	ld	a, _eep1+0
+      000304 5F               [ 1]  631 	clrw	x
+      000305 97               [ 1]  632 	ld	xl, a
+      000306 1D 00 25         [ 2]  633 	subw	x, #0x0025
+      000309 13 03            [ 2]  634 	cpw	x, (0x03, sp)
+      00030B 2F 13            [ 1]  635 	jrslt	00110$
+                                    636 ;	main.c: 131: inc200mv();				
+      00030D CDr01r65         [ 4]  637 	call	_inc200mv
+                                    638 ;	main.c: 132: delay_ms(500);   //delay 20ms
+      000310 4B F4            [ 1]  639 	push	#0xf4
+      000312 4B 01            [ 1]  640 	push	#0x01
+      000314 CDr00r00         [ 4]  641 	call	_delay_ms
+      000317 5B 02            [ 2]  642 	addw	sp, #2
+                                    643 ;	main.c: 130: for(int i = 0x00; i<= eep1-0x25 ;i++){
+      000319 1E 03            [ 2]  644 	ldw	x, (0x03, sp)
+      00031B 5C               [ 1]  645 	incw	x
+      00031C 1F 03            [ 2]  646 	ldw	(0x03, sp), x
+      00031E 20 E1            [ 2]  647 	jra	00126$
+      000320                        648 00110$:
+                                    649 ;	main.c: 134: dem2 = eep1 -0x25;
+      000320 C6u00u02         [ 1]  650 	ld	a, _eep1+0
+      000323 A0 25            [ 1]  651 	sub	a, #0x25
+      000325 C7u00u04         [ 1]  652 	ld	_dem2+0, a
+      000328                        653 00112$:
+                                    654 ;	main.c: 136: if(eep1 < 0x25){    //if we decrease voltage
+      000328 C6u00u02         [ 1]  655 	ld	a, _eep1+0
+      00032B A1 25            [ 1]  656 	cp	a, #0x25
+      00032D 24 33            [ 1]  657 	jrnc	00115$
+                                    658 ;	main.c: 137: for(int i = 0x00; i <= 0x25 - eep1; i++){
+      00032F 5F               [ 1]  659 	clrw	x
+      000330 1F 03            [ 2]  660 	ldw	(0x03, sp), x
+      000332                        661 00129$:
+      000332 C6u00u02         [ 1]  662 	ld	a, _eep1+0
+      000335 6B 02            [ 1]  663 	ld	(0x02, sp), a
+      000337 0F 01            [ 1]  664 	clr	(0x01, sp)
+      000339 AE 00 25         [ 2]  665 	ldw	x, #0x0025
+      00033C 72 F0 01         [ 2]  666 	subw	x, (0x01, sp)
+      00033F 13 03            [ 2]  667 	cpw	x, (0x03, sp)
+      000341 2F 13            [ 1]  668 	jrslt	00113$
+                                    669 ;	main.c: 138: dec200mv();
+      000343 CDr01r92         [ 4]  670 	call	_dec200mv
+                                    671 ;	main.c: 139: delay_ms(500);   //delay 20ms
+      000346 4B F4            [ 1]  672 	push	#0xf4
+      000348 4B 01            [ 1]  673 	push	#0x01
+      00034A CDr00r00         [ 4]  674 	call	_delay_ms
+      00034D 5B 02            [ 2]  675 	addw	sp, #2
+                                    676 ;	main.c: 137: for(int i = 0x00; i <= 0x25 - eep1; i++){
+      00034F 1E 03            [ 2]  677 	ldw	x, (0x03, sp)
+      000351 5C               [ 1]  678 	incw	x
+      000352 1F 03            [ 2]  679 	ldw	(0x03, sp), x
+      000354 20 DC            [ 2]  680 	jra	00129$
+      000356                        681 00113$:
+                                    682 ;	main.c: 141: dem2 = 0x25 - eep1;
+      000356 C6u00u02         [ 1]  683 	ld	a, _eep1+0
+      000359 6B 04            [ 1]  684 	ld	(0x04, sp), a
+      00035B A6 25            [ 1]  685 	ld	a, #0x25
+      00035D 10 04            [ 1]  686 	sub	a, (0x04, sp)
+      00035F C7u00u04         [ 1]  687 	ld	_dem2+0, a
+      000362                        688 00115$:
+                                    689 ;	main.c: 143: delay_ms(500);   //delay 0.5s button delay
+      000362 4B F4            [ 1]  690 	push	#0xf4
+      000364 4B 01            [ 1]  691 	push	#0x01
+      000366 CDr00r00         [ 4]  692 	call	_delay_ms
+      000369 5B 02            [ 2]  693 	addw	sp, #2
+                                    694 ;	main.c: 144: while(GPIO_ReadInputPin(GPIOD,GPIO_PIN_4)!=0){          // out loop if RA2 = 0 (press mode button)
+      00036B                        695 00120$:
+      00036B 4B 10            [ 1]  696 	push	#0x10
+      00036D 4B 0F            [ 1]  697 	push	#0x0f
+      00036F 4B 50            [ 1]  698 	push	#0x50
+      000371 CDr00r00         [ 4]  699 	call	_GPIO_ReadInputPin
+      000374 5B 03            [ 2]  700 	addw	sp, #3
+      000376 4D               [ 1]  701 	tnz	a
+      000377 27 6A            [ 1]  702 	jreq	00122$
+                                    703 ;	main.c: 145: if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_5)==0){         // increase 0,2V if we press button 2
+      000379 4B 20            [ 1]  704 	push	#0x20
+      00037B 4B 0F            [ 1]  705 	push	#0x0f
+      00037D 4B 50            [ 1]  706 	push	#0x50
+      00037F CDr00r00         [ 4]  707 	call	_GPIO_ReadInputPin
+      000382 5B 03            [ 2]  708 	addw	sp, #3
+      000384 4D               [ 1]  709 	tnz	a
+      000385 26 26            [ 1]  710 	jrne	00117$
+                                    711 ;	main.c: 146: inc200mv();
+      000387 CDr01r65         [ 4]  712 	call	_inc200mv
+                                    713 ;	main.c: 147: dem2 ++;                           
+      00038A 72 5Cu00u04      [ 1]  714 	inc	_dem2+0
+                                    715 ;	main.c: 148: t = 0x25 + dem2;                
+      00038E C6u00u04         [ 1]  716 	ld	a, _dem2+0
+      000391 AB 25            [ 1]  717 	add	a, #0x25
+      000393 C7u00u03         [ 1]  718 	ld	_t+0, a
+                                    719 ;	main.c: 149: FLASH_ProgramByte(0X4000, t);		//0x4000 address is the first eeprom address
+      000396 3Bu00u03         [ 1]  720 	push	_t+0
+      000399 4B 00            [ 1]  721 	push	#0x00
+      00039B 4B 40            [ 1]  722 	push	#0x40
+      00039D 5F               [ 1]  723 	clrw	x
+      00039E 89               [ 2]  724 	pushw	x
+      00039F CDr00r00         [ 4]  725 	call	_FLASH_ProgramByte
+      0003A2 5B 05            [ 2]  726 	addw	sp, #5
+                                    727 ;	main.c: 150: delay_ms(500);   //delay 0.5s         //button delay
+      0003A4 4B F4            [ 1]  728 	push	#0xf4
+      0003A6 4B 01            [ 1]  729 	push	#0x01
+      0003A8 CDr00r00         [ 4]  730 	call	_delay_ms
+      0003AB 5B 02            [ 2]  731 	addw	sp, #2
+      0003AD                        732 00117$:
+                                    733 ;	main.c: 152: if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_6)==0){         // decrease 0,2V if we press button 3
+      0003AD 4B 40            [ 1]  734 	push	#0x40
+      0003AF 4B 0F            [ 1]  735 	push	#0x0f
+      0003B1 4B 50            [ 1]  736 	push	#0x50
+      0003B3 CDr00r00         [ 4]  737 	call	_GPIO_ReadInputPin
+      0003B6 5B 03            [ 2]  738 	addw	sp, #3
+      0003B8 4D               [ 1]  739 	tnz	a
+      0003B9 26 B0            [ 1]  740 	jrne	00120$
+                                    741 ;	main.c: 153: dec200mv();
+      0003BB CDr01r92         [ 4]  742 	call	_dec200mv
+                                    743 ;	main.c: 154: dem2 --;                            
+      0003BE 72 5Au00u04      [ 1]  744 	dec	_dem2+0
+                                    745 ;	main.c: 155: t1 = 0x25 + dem2;
+      0003C2 C6u00u04         [ 1]  746 	ld	a, _dem2+0
+      0003C5 AB 25            [ 1]  747 	add	a, #0x25
+      0003C7 C7u00u04         [ 1]  748 	ld	_t1+0, a
+                                    749 ;	main.c: 156: FLASH_ProgramByte(0X4000, t1);		//0x4000 address is the first eeprom address
+      0003CA 3Bu00u04         [ 1]  750 	push	_t1+0
+      0003CD 4B 00            [ 1]  751 	push	#0x00
+      0003CF 4B 40            [ 1]  752 	push	#0x40
+      0003D1 5F               [ 1]  753 	clrw	x
+      0003D2 89               [ 2]  754 	pushw	x
+      0003D3 CDr00r00         [ 4]  755 	call	_FLASH_ProgramByte
+      0003D6 5B 05            [ 2]  756 	addw	sp, #5
+                                    757 ;	main.c: 157: delay_ms(500);   //delay 0.5s         //button delay
+      0003D8 4B F4            [ 1]  758 	push	#0xf4
+      0003DA 4B 01            [ 1]  759 	push	#0x01
+      0003DC CDr00r00         [ 4]  760 	call	_delay_ms
+      0003DF 5B 02            [ 2]  761 	addw	sp, #2
+      0003E1 20 88            [ 2]  762 	jra	00120$
+      0003E3                        763 00122$:
+                                    764 ;	main.c: 160: volt5();       
+      0003E3 5B 04            [ 2]  765 	addw	sp, #4
+      0003E5 CCr00r3A         [ 2]  766 	jp	_volt5
+      0003E8                        767 00131$:
+                                    768 ;	main.c: 163: }
+      0003E8 5B 04            [ 2]  769 	addw	sp, #4
+      0003EA 81               [ 4]  770 	ret
+                                    771 ;	main.c: 164: void main(void)
+                                    772 ;	-----------------------------------------
+                                    773 ;	 function main
+                                    774 ;	-----------------------------------------
+      0003EB                        775 _main:
+                                    776 ;	main.c: 166: CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+      0003EB 4B 00            [ 1]  777 	push	#0x00
+      0003ED CDr00r00         [ 4]  778 	call	_CLK_HSIPrescalerConfig
+      0003F0 84               [ 1]  779 	pop	a
+                                    780 ;	main.c: 167: TIM4_TimeBaseInit(TIM4_PRESCALER_128, 125 - 1);
+      0003F1 4B 7C            [ 1]  781 	push	#0x7c
+      0003F3 4B 07            [ 1]  782 	push	#0x07
+      0003F5 CDr00r00         [ 4]  783 	call	_TIM4_TimeBaseInit
+      0003F8 5B 02            [ 2]  784 	addw	sp, #2
+                                    785 ;	main.c: 168: TIM4_Cmd(ENABLE);
+      0003FA 4B 01            [ 1]  786 	push	#0x01
+      0003FC CDr00r00         [ 4]  787 	call	_TIM4_Cmd
+      0003FF 84               [ 1]  788 	pop	a
+                                    789 ;	main.c: 169: GPIO_DeInit(GPIOD);
+      000400 4B 0F            [ 1]  790 	push	#0x0f
+      000402 4B 50            [ 1]  791 	push	#0x50
+      000404 CDr00r00         [ 4]  792 	call	_GPIO_DeInit
+      000407 5B 02            [ 2]  793 	addw	sp, #2
+                                    794 ;	main.c: 170: GPIO_DeInit(GPIOC);
+      000409 4B 0A            [ 1]  795 	push	#0x0a
+      00040B 4B 50            [ 1]  796 	push	#0x50
+      00040D CDr00r00         [ 4]  797 	call	_GPIO_DeInit
+      000410 5B 02            [ 2]  798 	addw	sp, #2
+                                    799 ;	main.c: 171: GPIO_Init(GPIOC, GPIO_PIN_5, GPIO_MODE_IN_FL_NO_IT);		//d+ floating	
+      000412 4B 00            [ 1]  800 	push	#0x00
+      000414 4B 20            [ 1]  801 	push	#0x20
+      000416 4B 0A            [ 1]  802 	push	#0x0a
+      000418 4B 50            [ 1]  803 	push	#0x50
+      00041A CDr00r00         [ 4]  804 	call	_GPIO_Init
+      00041D 5B 04            [ 2]  805 	addw	sp, #4
+                                    806 ;	main.c: 172: GPIO_Init(GPIOD, GPIO_PIN_4, GPIO_MODE_IN_PU_NO_IT);		//button 1
+      00041F 4B 40            [ 1]  807 	push	#0x40
+      000421 4B 10            [ 1]  808 	push	#0x10
+      000423 4B 0F            [ 1]  809 	push	#0x0f
+      000425 4B 50            [ 1]  810 	push	#0x50
+      000427 CDr00r00         [ 4]  811 	call	_GPIO_Init
+      00042A 5B 04            [ 2]  812 	addw	sp, #4
+                                    813 ;	main.c: 173: GPIO_Init(GPIOD, GPIO_PIN_5, GPIO_MODE_IN_PU_NO_IT);		//button 2
+      00042C 4B 40            [ 1]  814 	push	#0x40
+      00042E 4B 20            [ 1]  815 	push	#0x20
+      000430 4B 0F            [ 1]  816 	push	#0x0f
+      000432 4B 50            [ 1]  817 	push	#0x50
+      000434 CDr00r00         [ 4]  818 	call	_GPIO_Init
+      000437 5B 04            [ 2]  819 	addw	sp, #4
+                                    820 ;	main.c: 174: GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_PU_NO_IT);		//button 3
+      000439 4B 40            [ 1]  821 	push	#0x40
+      00043B 4B 40            [ 1]  822 	push	#0x40
+      00043D 4B 0F            [ 1]  823 	push	#0x0f
+      00043F 4B 50            [ 1]  824 	push	#0x50
+      000441 CDr00r00         [ 4]  825 	call	_GPIO_Init
+      000444 5B 04            [ 2]  826 	addw	sp, #4
+                                    827 ;	main.c: 176: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);	//d- low
+      000446 4B E0            [ 1]  828 	push	#0xe0
+      000448 4B 40            [ 1]  829 	push	#0x40
+      00044A 4B 0A            [ 1]  830 	push	#0x0a
+      00044C 4B 50            [ 1]  831 	push	#0x50
+      00044E CDr00r00         [ 4]  832 	call	_GPIO_Init
+      000451 5B 04            [ 2]  833 	addw	sp, #4
+                                    834 ;	main.c: 177: delay_ms(20);
+      000453 4B 14            [ 1]  835 	push	#0x14
+      000455 4B 00            [ 1]  836 	push	#0x00
+      000457 CDr00r00         [ 4]  837 	call	_delay_ms
+      00045A 5B 02            [ 2]  838 	addw	sp, #2
+                                    839 ;	main.c: 178: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);		//d- floating
+      00045C 4B 00            [ 1]  840 	push	#0x00
+      00045E 4B 40            [ 1]  841 	push	#0x40
+      000460 4B 0A            [ 1]  842 	push	#0x0a
+      000462 4B 50            [ 1]  843 	push	#0x50
+      000464 CDr00r00         [ 4]  844 	call	_GPIO_Init
+      000467 5B 04            [ 2]  845 	addw	sp, #4
+                                    846 ;	main.c: 179: delay_ms(1500);	
+      000469 4B DC            [ 1]  847 	push	#0xdc
+      00046B 4B 05            [ 1]  848 	push	#0x05
+      00046D CDr00r00         [ 4]  849 	call	_delay_ms
+      000470 5B 02            [ 2]  850 	addw	sp, #2
+                                    851 ;	main.c: 180: GPIO_Init(GPIOC, GPIO_PIN_6, GPIO_MODE_OUT_PP_LOW_FAST);	//d- low
+      000472 4B E0            [ 1]  852 	push	#0xe0
+      000474 4B 40            [ 1]  853 	push	#0x40
+      000476 4B 0A            [ 1]  854 	push	#0x0a
+      000478 4B 50            [ 1]  855 	push	#0x50
+      00047A CDr00r00         [ 4]  856 	call	_GPIO_Init
+      00047D 5B 04            [ 2]  857 	addw	sp, #4
+                                    858 ;	main.c: 181: delay_ms(200);
+      00047F 4B C8            [ 1]  859 	push	#0xc8
+      000481 4B 00            [ 1]  860 	push	#0x00
+      000483 CDr00r00         [ 4]  861 	call	_delay_ms
+      000486 5B 02            [ 2]  862 	addw	sp, #2
+                                    863 ;	main.c: 185: EEROM_INIT();
+      000488 CDr00r2A         [ 4]  864 	call	_EEROM_INIT
+                                    865 ;	main.c: 186: eepdata = FLASH_ReadByte(0x4000);		//read eeprom at 0x4000 address
+      00048B 4B 00            [ 1]  866 	push	#0x00
+      00048D 4B 40            [ 1]  867 	push	#0x40
+      00048F 5F               [ 1]  868 	clrw	x
+      000490 89               [ 2]  869 	pushw	x
+      000491 CDr00r00         [ 4]  870 	call	_FLASH_ReadByte
+      000494 5B 04            [ 2]  871 	addw	sp, #4
+      000496 C7u00u00         [ 1]  872 	ld	_eepdata+0, a
+                                    873 ;	main.c: 187: delay_ms(20);
+      000499 4B 14            [ 1]  874 	push	#0x14
+      00049B 4B 00            [ 1]  875 	push	#0x00
+      00049D CDr00r00         [ 4]  876 	call	_delay_ms
+      0004A0 5B 02            [ 2]  877 	addw	sp, #2
+                                    878 ;	main.c: 188: eepselect = FLASH_ReadByte(0x4001);		//read eeprom at 0x4001 address
+      0004A2 4B 01            [ 1]  879 	push	#0x01
+      0004A4 4B 40            [ 1]  880 	push	#0x40
+      0004A6 5F               [ 1]  881 	clrw	x
+      0004A7 89               [ 2]  882 	pushw	x
+      0004A8 CDr00r00         [ 4]  883 	call	_FLASH_ReadByte
+      0004AB 5B 04            [ 2]  884 	addw	sp, #4
+      0004AD C7u00u01         [ 1]  885 	ld	_eepselect+0, a
+                                    886 ;	main.c: 190: if(eepdata == 0x60){                            //go to 12 volts from the second time run
+      0004B0 C6u00u00         [ 1]  887 	ld	a, _eepdata+0
+      0004B3 A1 60            [ 1]  888 	cp	a, #0x60
+      0004B5 26 06            [ 1]  889 	jrne	00102$
+                                    890 ;	main.c: 191: dem1 = 3;
+      0004B7 AE 00 03         [ 2]  891 	ldw	x, #0x0003
+      0004BA CFu00u02         [ 2]  892 	ldw	_dem1+0, x
+      0004BD                        893 00102$:
+                                    894 ;	main.c: 193: if(eepdata == 0x25 && eepselect == 0x00 ){      //go to 5 volts from the second time run
+      0004BD C6u00u00         [ 1]  895 	ld	a, _eepdata+0
+      0004C0 A0 25            [ 1]  896 	sub	a, #0x25
+      0004C2 26 05            [ 1]  897 	jrne	00206$
+      0004C4 4C               [ 1]  898 	inc	a
+      0004C5 90 97            [ 1]  899 	ld	yl, a
+      0004C7 20 03            [ 2]  900 	jra	00207$
+      0004C9                        901 00206$:
+      0004C9 4F               [ 1]  902 	clr	a
+      0004CA 90 97            [ 1]  903 	ld	yl, a
+      0004CC                        904 00207$:
+      0004CC 90 9F            [ 1]  905 	ld	a, yl
+      0004CE 4D               [ 1]  906 	tnz	a
+      0004CF 27 0A            [ 1]  907 	jreq	00104$
+      0004D1 72 5Du00u01      [ 1]  908 	tnz	_eepselect+0
+      0004D5 26 04            [ 1]  909 	jrne	00104$
+                                    910 ;	main.c: 194: dem1 = 0;
+      0004D7 5F               [ 1]  911 	clrw	x
+      0004D8 CFu00u02         [ 2]  912 	ldw	_dem1+0, x
+      0004DB                        913 00104$:
+                                    914 ;	main.c: 196: if(eepdata == 0x45){                            //go to 9 volts from the second time run
+      0004DB C6u00u00         [ 1]  915 	ld	a, _eepdata+0
+      0004DE A1 45            [ 1]  916 	cp	a, #0x45
+      0004E0 26 06            [ 1]  917 	jrne	00107$
+                                    918 ;	main.c: 197: dem1 = 2;
+      0004E2 AE 00 02         [ 2]  919 	ldw	x, #0x0002
+      0004E5 CFu00u02         [ 2]  920 	ldw	_dem1+0, x
+      0004E8                        921 00107$:
+                                    922 ;	main.c: 199: if(eepdata == 0x25 && eepselect == 0x01){       //go to INOV mode then go to changed = 0
+      0004E8 C6u00u01         [ 1]  923 	ld	a, _eepselect+0
+      0004EB 4A               [ 1]  924 	dec	a
+      0004EC 26 03            [ 1]  925 	jrne	00214$
+      0004EE A6 01            [ 1]  926 	ld	a, #0x01
+      0004F0 21                     927 	.byte 0x21
+      0004F1                        928 00214$:
+      0004F1 4F               [ 1]  929 	clr	a
+      0004F2                        930 00215$:
+      0004F2 61               [ 1]  931 	exg	a, yl
+      0004F3 4D               [ 1]  932 	tnz	a
+      0004F4 61               [ 1]  933 	exg	a, yl
+      0004F5 27 0D            [ 1]  934 	jreq	00109$
+      0004F7 4D               [ 1]  935 	tnz	a
+      0004F8 27 0A            [ 1]  936 	jreq	00109$
+                                    937 ;	main.c: 200: dem1 = 1;
+      0004FA AE 00 01         [ 2]  938 	ldw	x, #0x0001
+      0004FD CFu00u02         [ 2]  939 	ldw	_dem1+0, x
+                                    940 ;	main.c: 201: changed = 0;
+      000500 5F               [ 1]  941 	clrw	x
+      000501 CFu00u00         [ 2]  942 	ldw	_changed+0, x
+      000504                        943 00109$:
+                                    944 ;	main.c: 203: if(eepdata != 0x25 && eepselect == 0x01){       //go to INOV mode then go to changed = 1
+      000504 61               [ 1]  945 	exg	a, yl
+      000505 4D               [ 1]  946 	tnz	a
+      000506 61               [ 1]  947 	exg	a, yl
+      000507 26 0F            [ 1]  948 	jrne	00123$
+      000509 4D               [ 1]  949 	tnz	a
+      00050A 27 0C            [ 1]  950 	jreq	00123$
+                                    951 ;	main.c: 204: dem1 = 1;
+      00050C AE 00 01         [ 2]  952 	ldw	x, #0x0001
+      00050F CFu00u02         [ 2]  953 	ldw	_dem1+0, x
+                                    954 ;	main.c: 205: changed = 1;            //when we impact increase or decrease button, go to changed = 1
+      000512 AE 00 01         [ 2]  955 	ldw	x, #0x0001
+      000515 CFu00u00         [ 2]  956 	ldw	_changed+0, x
+                                    957 ;	main.c: 207: while(1) {
+      000518                        958 00123$:
+                                    959 ;	main.c: 208: dem1++;
+      000518 CEu00u02         [ 2]  960 	ldw	x, _dem1+0
+      00051B 5C               [ 1]  961 	incw	x
+                                    962 ;	main.c: 209: switch(dem1){
+      00051C CFu00u02         [ 2]  963 	ldw	_dem1+0, x
+      00051F 5A               [ 2]  964 	decw	x
+      000520 27 1A            [ 1]  965 	jreq	00114$
+      000522 CEu00u02         [ 2]  966 	ldw	x, _dem1+0
+      000525 A3 00 02         [ 2]  967 	cpw	x, #0x0002
+      000528 27 17            [ 1]  968 	jreq	00115$
+      00052A CEu00u02         [ 2]  969 	ldw	x, _dem1+0
+      00052D A3 00 03         [ 2]  970 	cpw	x, #0x0003
+      000530 27 14            [ 1]  971 	jreq	00116$
+      000532 CEu00u02         [ 2]  972 	ldw	x, _dem1+0
+      000535 A3 00 04         [ 2]  973 	cpw	x, #0x0004
+      000538 27 11            [ 1]  974 	jreq	00117$
+      00053A 20 16            [ 2]  975 	jra	00118$
+                                    976 ;	main.c: 210: case 1: volt5(); break;
+      00053C                        977 00114$:
+      00053C CDr00r3A         [ 4]  978 	call	_volt5
+      00053F 20 11            [ 2]  979 	jra	00118$
+                                    980 ;	main.c: 211: case 2: INOV(); break;
+      000541                        981 00115$:
+      000541 CDr01rBF         [ 4]  982 	call	_INOV
+      000544 20 0C            [ 2]  983 	jra	00118$
+                                    984 ;	main.c: 213: case 3: volt9(); break;
+      000546                        985 00116$:
+      000546 CDr00rA2         [ 4]  986 	call	_volt9
+      000549 20 07            [ 2]  987 	jra	00118$
+                                    988 ;	main.c: 214: case 4: volt12(); dem1 = 0; break;
+      00054B                        989 00117$:
+      00054B CDr01r0A         [ 4]  990 	call	_volt12
+      00054E 5F               [ 1]  991 	clrw	x
+      00054F CFu00u02         [ 2]  992 	ldw	_dem1+0, x
+                                    993 ;	main.c: 215: }
+      000552                        994 00118$:
+                                    995 ;	main.c: 216: delay_ms(500);
+      000552 4B F4            [ 1]  996 	push	#0xf4
+      000554 4B 01            [ 1]  997 	push	#0x01
+      000556 CDr00r00         [ 4]  998 	call	_delay_ms
+      000559 5B 02            [ 2]  999 	addw	sp, #2
+                                   1000 ;	main.c: 217: while(GPIO_ReadInputPin(GPIOD,GPIO_PIN_4)!=0){
+      00055B                       1001 00119$:
+      00055B 4B 10            [ 1] 1002 	push	#0x10
+      00055D 4B 0F            [ 1] 1003 	push	#0x0f
+      00055F 4B 50            [ 1] 1004 	push	#0x50
+      000561 CDr00r00         [ 4] 1005 	call	_GPIO_ReadInputPin
+      000564 5B 03            [ 2] 1006 	addw	sp, #3
+      000566 4D               [ 1] 1007 	tnz	a
+      000567 27 AF            [ 1] 1008 	jreq	00123$
+      000569 20 F0            [ 2] 1009 	jra	00119$
+                                   1010 ;	main.c: 221: }
+      00056B 81               [ 4] 1011 	ret
+                                   1012 	.area CODE
+                                   1013 	.area CONST
+                                   1014 	.area INITIALIZER
+      000000                       1015 __xinit__changed:
+      000000 00 00                 1016 	.dw #0x0000
+      000002                       1017 __xinit__dem1:
+      000002 00 00                 1018 	.dw #0x0000
+      000004                       1019 __xinit__dem2:
+      000004 00                    1020 	.db #0x00	; 0
+                                   1021 	.area CABS (ABS)

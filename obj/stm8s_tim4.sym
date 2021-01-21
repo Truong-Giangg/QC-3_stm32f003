@@ -1,0 +1,46 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000001 L
+  9 _TIM4_ARRPreloadConfig                                         00009C GR
+  9 _TIM4_ClearFlag                                                0000D8 GR
+  9 _TIM4_ClearITPendingBit                                        0000FA GR
+  9 _TIM4_Cmd                                                      000026 GR
+  9 _TIM4_DeInit                                                   000000 GR
+  9 _TIM4_GenerateEvent                                            0000AF GR
+  9 _TIM4_GetCounter                                               0000C4 GR
+  9 _TIM4_GetFlagStatus                                            0000CC GR
+  9 _TIM4_GetITStatus                                              0000DF GR
+  9 _TIM4_GetPrescaler                                             0000C8 GR
+  9 _TIM4_ITConfig                                                 000039 GR
+  9 _TIM4_PrescalerConfig                                          00008F GR
+  9 _TIM4_SelectOnePulseMode                                       00007C GR
+  9 _TIM4_SetAutoreload                                            0000BD GR
+  9 _TIM4_SetCounter                                               0000B6 GR
+  9 _TIM4_TimeBaseInit                                             000019 GR
+  9 _TIM4_UpdateDisableConfig                                      000056 GR
+  9 _TIM4_UpdateRequestConfig                                      000069 GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size      0   flags    0
+   1 DATA                                       size      0   flags    0
+   2 INITIALIZED                                size      0   flags    0
+   3 DABS                                       size      0   flags    8
+   4 HOME                                       size      0   flags    0
+   5 GSINIT                                     size      0   flags    0
+   6 GSFINAL                                    size      0   flags    0
+   7 CONST                                      size      0   flags    0
+   8 INITIALIZER                                size      0   flags    0
+   9 CODE                                       size    101   flags    0
+   A CABS                                       size      0   flags    8
+

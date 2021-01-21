@@ -1,0 +1,609 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.0 #11528 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module stm8s_flash
+                                      6 	.optsdcc -mstm8
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _FLASH_Unlock
+                                     12 	.globl _FLASH_Lock
+                                     13 	.globl _FLASH_DeInit
+                                     14 	.globl _FLASH_ITConfig
+                                     15 	.globl _FLASH_EraseByte
+                                     16 	.globl _FLASH_ProgramByte
+                                     17 	.globl _FLASH_ReadByte
+                                     18 	.globl _FLASH_ProgramWord
+                                     19 	.globl _FLASH_ProgramOptionByte
+                                     20 	.globl _FLASH_EraseOptionByte
+                                     21 	.globl _FLASH_ReadOptionByte
+                                     22 	.globl _FLASH_SetLowPowerMode
+                                     23 	.globl _FLASH_SetProgrammingTime
+                                     24 	.globl _FLASH_GetLowPowerMode
+                                     25 	.globl _FLASH_GetProgrammingTime
+                                     26 	.globl _FLASH_GetBootSize
+                                     27 	.globl _FLASH_GetFlagStatus
+                                     28 	.globl _FLASH_WaitForLastOperation
+                                     29 	.globl _FLASH_EraseBlock
+                                     30 	.globl _FLASH_ProgramBlock
+                                     31 ;--------------------------------------------------------
+                                     32 ; ram data
+                                     33 ;--------------------------------------------------------
+                                     34 	.area DATA
+                                     35 ;--------------------------------------------------------
+                                     36 ; ram data
+                                     37 ;--------------------------------------------------------
+                                     38 	.area INITIALIZED
+                                     39 ;--------------------------------------------------------
+                                     40 ; absolute external ram data
+                                     41 ;--------------------------------------------------------
+                                     42 	.area DABS (ABS)
+                                     43 
+                                     44 ; default segment ordering for linker
+                                     45 	.area HOME
+                                     46 	.area GSINIT
+                                     47 	.area GSFINAL
+                                     48 	.area CONST
+                                     49 	.area INITIALIZER
+                                     50 	.area CODE
+                                     51 
+                                     52 ;--------------------------------------------------------
+                                     53 ; global & static initialisations
+                                     54 ;--------------------------------------------------------
+                                     55 	.area HOME
+                                     56 	.area GSINIT
+                                     57 	.area GSFINAL
+                                     58 	.area GSINIT
+                                     59 ;--------------------------------------------------------
+                                     60 ; Home
+                                     61 ;--------------------------------------------------------
+                                     62 	.area HOME
+                                     63 	.area HOME
+                                     64 ;--------------------------------------------------------
+                                     65 ; code
+                                     66 ;--------------------------------------------------------
+                                     67 	.area CODE
+                                     68 ;	lib/src/stm8s_flash.c: 87: void FLASH_Unlock(FLASH_MemType_TypeDef FLASH_MemType)
+                                     69 ;	-----------------------------------------
+                                     70 ;	 function FLASH_Unlock
+                                     71 ;	-----------------------------------------
+      000000                         72 _FLASH_Unlock:
+                                     73 ;	lib/src/stm8s_flash.c: 93: if(FLASH_MemType == FLASH_MEMTYPE_PROG)
+      000000 7B 03            [ 1]   74 	ld	a, (0x03, sp)
+      000002 A1 FD            [ 1]   75 	cp	a, #0xfd
+      000004 26 09            [ 1]   76 	jrne	00102$
+                                     77 ;	lib/src/stm8s_flash.c: 95: FLASH->PUKR = FLASH_RASS_KEY1;
+      000006 35 56 50 62      [ 1]   78 	mov	0x5062+0, #0x56
+                                     79 ;	lib/src/stm8s_flash.c: 96: FLASH->PUKR = FLASH_RASS_KEY2;
+      00000A 35 AE 50 62      [ 1]   80 	mov	0x5062+0, #0xae
+      00000E 81               [ 4]   81 	ret
+      00000F                         82 00102$:
+                                     83 ;	lib/src/stm8s_flash.c: 101: FLASH->DUKR = FLASH_RASS_KEY2; /* Warning: keys are reversed on data memory !!! */
+      00000F 35 AE 50 64      [ 1]   84 	mov	0x5064+0, #0xae
+                                     85 ;	lib/src/stm8s_flash.c: 102: FLASH->DUKR = FLASH_RASS_KEY1;
+      000013 35 56 50 64      [ 1]   86 	mov	0x5064+0, #0x56
+                                     87 ;	lib/src/stm8s_flash.c: 104: }
+      000017 81               [ 4]   88 	ret
+                                     89 ;	lib/src/stm8s_flash.c: 112: void FLASH_Lock(FLASH_MemType_TypeDef FLASH_MemType)
+                                     90 ;	-----------------------------------------
+                                     91 ;	 function FLASH_Lock
+                                     92 ;	-----------------------------------------
+      000018                         93 _FLASH_Lock:
+                                     94 ;	lib/src/stm8s_flash.c: 118: FLASH->IAPSR &= (uint8_t)FLASH_MemType;
+      000018 C6 50 5F         [ 1]   95 	ld	a, 0x505f
+      00001B 14 03            [ 1]   96 	and	a, (0x03, sp)
+      00001D C7 50 5F         [ 1]   97 	ld	0x505f, a
+                                     98 ;	lib/src/stm8s_flash.c: 119: }
+      000020 81               [ 4]   99 	ret
+                                    100 ;	lib/src/stm8s_flash.c: 126: void FLASH_DeInit(void)
+                                    101 ;	-----------------------------------------
+                                    102 ;	 function FLASH_DeInit
+                                    103 ;	-----------------------------------------
+      000021                        104 _FLASH_DeInit:
+                                    105 ;	lib/src/stm8s_flash.c: 128: FLASH->CR1 = FLASH_CR1_RESET_VALUE;
+      000021 35 00 50 5A      [ 1]  106 	mov	0x505a+0, #0x00
+                                    107 ;	lib/src/stm8s_flash.c: 129: FLASH->CR2 = FLASH_CR2_RESET_VALUE;
+      000025 35 00 50 5B      [ 1]  108 	mov	0x505b+0, #0x00
+                                    109 ;	lib/src/stm8s_flash.c: 130: FLASH->NCR2 = FLASH_NCR2_RESET_VALUE;
+      000029 35 FF 50 5C      [ 1]  110 	mov	0x505c+0, #0xff
+                                    111 ;	lib/src/stm8s_flash.c: 131: FLASH->IAPSR &= (uint8_t)(~FLASH_IAPSR_DUL);
+      00002D 72 17 50 5F      [ 1]  112 	bres	20575, #3
+                                    113 ;	lib/src/stm8s_flash.c: 132: FLASH->IAPSR &= (uint8_t)(~FLASH_IAPSR_PUL);
+      000031 72 13 50 5F      [ 1]  114 	bres	20575, #1
+                                    115 ;	lib/src/stm8s_flash.c: 133: (void) FLASH->IAPSR; /* Reading of this register causes the clearing of status flags */
+      000035 C6 50 5F         [ 1]  116 	ld	a, 0x505f
+                                    117 ;	lib/src/stm8s_flash.c: 134: }
+      000038 81               [ 4]  118 	ret
+                                    119 ;	lib/src/stm8s_flash.c: 142: void FLASH_ITConfig(FunctionalState NewState)
+                                    120 ;	-----------------------------------------
+                                    121 ;	 function FLASH_ITConfig
+                                    122 ;	-----------------------------------------
+      000039                        123 _FLASH_ITConfig:
+                                    124 ;	lib/src/stm8s_flash.c: 149: FLASH->CR1 |= FLASH_CR1_IE; /* Enables the interrupt sources */
+      000039 C6 50 5A         [ 1]  125 	ld	a, 0x505a
+                                    126 ;	lib/src/stm8s_flash.c: 147: if(NewState != DISABLE)
+      00003C 0D 03            [ 1]  127 	tnz	(0x03, sp)
+      00003E 27 06            [ 1]  128 	jreq	00102$
+                                    129 ;	lib/src/stm8s_flash.c: 149: FLASH->CR1 |= FLASH_CR1_IE; /* Enables the interrupt sources */
+      000040 AA 02            [ 1]  130 	or	a, #0x02
+      000042 C7 50 5A         [ 1]  131 	ld	0x505a, a
+      000045 81               [ 4]  132 	ret
+      000046                        133 00102$:
+                                    134 ;	lib/src/stm8s_flash.c: 153: FLASH->CR1 &= (uint8_t)(~FLASH_CR1_IE); /* Disables the interrupt sources */
+      000046 A4 FD            [ 1]  135 	and	a, #0xfd
+      000048 C7 50 5A         [ 1]  136 	ld	0x505a, a
+                                    137 ;	lib/src/stm8s_flash.c: 155: }
+      00004B 81               [ 4]  138 	ret
+                                    139 ;	lib/src/stm8s_flash.c: 164: void FLASH_EraseByte(uint32_t Address)
+                                    140 ;	-----------------------------------------
+                                    141 ;	 function FLASH_EraseByte
+                                    142 ;	-----------------------------------------
+      00004C                        143 _FLASH_EraseByte:
+                                    144 ;	lib/src/stm8s_flash.c: 170: *(PointerAttr uint8_t*) (MemoryAddressCast)Address = FLASH_CLEAR_BYTE;
+      00004C 1E 05            [ 2]  145 	ldw	x, (0x05, sp)
+      00004E 7F               [ 1]  146 	clr	(x)
+                                    147 ;	lib/src/stm8s_flash.c: 171: }
+      00004F 81               [ 4]  148 	ret
+                                    149 ;	lib/src/stm8s_flash.c: 181: void FLASH_ProgramByte(uint32_t Address, uint8_t Data)
+                                    150 ;	-----------------------------------------
+                                    151 ;	 function FLASH_ProgramByte
+                                    152 ;	-----------------------------------------
+      000050                        153 _FLASH_ProgramByte:
+                                    154 ;	lib/src/stm8s_flash.c: 185: *(PointerAttr uint8_t*) (MemoryAddressCast)Address = Data;
+      000050 1E 05            [ 2]  155 	ldw	x, (0x05, sp)
+      000052 7B 07            [ 1]  156 	ld	a, (0x07, sp)
+      000054 F7               [ 1]  157 	ld	(x), a
+                                    158 ;	lib/src/stm8s_flash.c: 186: }
+      000055 81               [ 4]  159 	ret
+                                    160 ;	lib/src/stm8s_flash.c: 195: uint8_t FLASH_ReadByte(uint32_t Address)
+                                    161 ;	-----------------------------------------
+                                    162 ;	 function FLASH_ReadByte
+                                    163 ;	-----------------------------------------
+      000056                        164 _FLASH_ReadByte:
+                                    165 ;	lib/src/stm8s_flash.c: 201: return(*(PointerAttr uint8_t *) (MemoryAddressCast)Address);
+      000056 1E 05            [ 2]  166 	ldw	x, (0x05, sp)
+      000058 F6               [ 1]  167 	ld	a, (x)
+                                    168 ;	lib/src/stm8s_flash.c: 202: }
+      000059 81               [ 4]  169 	ret
+                                    170 ;	lib/src/stm8s_flash.c: 212: void FLASH_ProgramWord(uint32_t Address, uint32_t Data)
+                                    171 ;	-----------------------------------------
+                                    172 ;	 function FLASH_ProgramWord
+                                    173 ;	-----------------------------------------
+      00005A                        174 _FLASH_ProgramWord:
+      00005A 52 02            [ 2]  175 	sub	sp, #2
+                                    176 ;	lib/src/stm8s_flash.c: 218: FLASH->CR2 |= FLASH_CR2_WPRG;
+      00005C 72 1C 50 5B      [ 1]  177 	bset	20571, #6
+                                    178 ;	lib/src/stm8s_flash.c: 219: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NWPRG);
+      000060 72 1D 50 5C      [ 1]  179 	bres	20572, #6
+                                    180 ;	lib/src/stm8s_flash.c: 222: *((PointerAttr uint8_t*)(MemoryAddressCast)Address)       = *((uint8_t*)(&Data));
+      000064 16 07            [ 2]  181 	ldw	y, (0x07, sp)
+      000066 96               [ 1]  182 	ldw	x, sp
+      000067 1C 00 09         [ 2]  183 	addw	x, #9
+      00006A F6               [ 1]  184 	ld	a, (x)
+      00006B 90 F7            [ 1]  185 	ld	(y), a
+                                    186 ;	lib/src/stm8s_flash.c: 224: *(((PointerAttr uint8_t*)(MemoryAddressCast)Address) + 1) = *((uint8_t*)(&Data)+1);
+      00006D 93               [ 1]  187 	ldw	x, y
+      00006E 5C               [ 1]  188 	incw	x
+      00006F 1F 01            [ 2]  189 	ldw	(0x01, sp), x
+      000071 96               [ 1]  190 	ldw	x, sp
+      000072 1C 00 09         [ 2]  191 	addw	x, #9
+      000075 E6 01            [ 1]  192 	ld	a, (0x1, x)
+      000077 1E 01            [ 2]  193 	ldw	x, (0x01, sp)
+      000079 F7               [ 1]  194 	ld	(x), a
+                                    195 ;	lib/src/stm8s_flash.c: 226: *(((PointerAttr uint8_t*)(MemoryAddressCast)Address) + 2) = *((uint8_t*)(&Data)+2);
+      00007A 93               [ 1]  196 	ldw	x, y
+      00007B 5C               [ 1]  197 	incw	x
+      00007C 5C               [ 1]  198 	incw	x
+      00007D 1F 01            [ 2]  199 	ldw	(0x01, sp), x
+      00007F 96               [ 1]  200 	ldw	x, sp
+      000080 1C 00 09         [ 2]  201 	addw	x, #9
+      000083 E6 02            [ 1]  202 	ld	a, (0x2, x)
+      000085 1E 01            [ 2]  203 	ldw	x, (0x01, sp)
+      000087 F7               [ 1]  204 	ld	(x), a
+                                    205 ;	lib/src/stm8s_flash.c: 228: *(((PointerAttr uint8_t*)(MemoryAddressCast)Address) + 3) = *((uint8_t*)(&Data)+3);
+      000088 72 A9 00 03      [ 2]  206 	addw	y, #0x0003
+      00008C 96               [ 1]  207 	ldw	x, sp
+      00008D 1C 00 09         [ 2]  208 	addw	x, #9
+      000090 E6 03            [ 1]  209 	ld	a, (0x3, x)
+      000092 90 F7            [ 1]  210 	ld	(y), a
+                                    211 ;	lib/src/stm8s_flash.c: 229: }
+      000094 5B 02            [ 2]  212 	addw	sp, #2
+      000096 81               [ 4]  213 	ret
+                                    214 ;	lib/src/stm8s_flash.c: 237: void FLASH_ProgramOptionByte(uint16_t Address, uint8_t Data)
+                                    215 ;	-----------------------------------------
+                                    216 ;	 function FLASH_ProgramOptionByte
+                                    217 ;	-----------------------------------------
+      000097                        218 _FLASH_ProgramOptionByte:
+      000097 52 02            [ 2]  219 	sub	sp, #2
+                                    220 ;	lib/src/stm8s_flash.c: 243: FLASH->CR2 |= FLASH_CR2_OPT;
+      000099 72 1E 50 5B      [ 1]  221 	bset	20571, #7
+                                    222 ;	lib/src/stm8s_flash.c: 244: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NOPT);
+      00009D 72 1F 50 5C      [ 1]  223 	bres	20572, #7
+                                    224 ;	lib/src/stm8s_flash.c: 247: if(Address == 0x4800)
+      0000A1 1E 05            [ 2]  225 	ldw	x, (0x05, sp)
+                                    226 ;	lib/src/stm8s_flash.c: 250: *((NEAR uint8_t*)Address) = Data;
+      0000A3 16 05            [ 2]  227 	ldw	y, (0x05, sp)
+      0000A5 17 01            [ 2]  228 	ldw	(0x01, sp), y
+                                    229 ;	lib/src/stm8s_flash.c: 247: if(Address == 0x4800)
+      0000A7 A3 48 00         [ 2]  230 	cpw	x, #0x4800
+      0000AA 26 07            [ 1]  231 	jrne	00102$
+                                    232 ;	lib/src/stm8s_flash.c: 250: *((NEAR uint8_t*)Address) = Data;
+      0000AC 1E 01            [ 2]  233 	ldw	x, (0x01, sp)
+      0000AE 7B 07            [ 1]  234 	ld	a, (0x07, sp)
+      0000B0 F7               [ 1]  235 	ld	(x), a
+      0000B1 20 0F            [ 2]  236 	jra	00103$
+      0000B3                        237 00102$:
+                                    238 ;	lib/src/stm8s_flash.c: 255: *((NEAR uint8_t*)Address) = Data;
+      0000B3 16 01            [ 2]  239 	ldw	y, (0x01, sp)
+      0000B5 7B 07            [ 1]  240 	ld	a, (0x07, sp)
+      0000B7 90 F7            [ 1]  241 	ld	(y), a
+                                    242 ;	lib/src/stm8s_flash.c: 256: *((NEAR uint8_t*)((uint16_t)(Address + 1))) = (uint8_t)(~Data);
+      0000B9 5C               [ 1]  243 	incw	x
+      0000BA 1F 01            [ 2]  244 	ldw	(0x01, sp), x
+      0000BC 7B 07            [ 1]  245 	ld	a, (0x07, sp)
+      0000BE 43               [ 1]  246 	cpl	a
+      0000BF 1E 01            [ 2]  247 	ldw	x, (0x01, sp)
+      0000C1 F7               [ 1]  248 	ld	(x), a
+      0000C2                        249 00103$:
+                                    250 ;	lib/src/stm8s_flash.c: 258: FLASH_WaitForLastOperation(FLASH_MEMTYPE_PROG);
+      0000C2 4B FD            [ 1]  251 	push	#0xfd
+      0000C4 CDr01r91         [ 4]  252 	call	_FLASH_WaitForLastOperation
+      0000C7 84               [ 1]  253 	pop	a
+                                    254 ;	lib/src/stm8s_flash.c: 261: FLASH->CR2 &= (uint8_t)(~FLASH_CR2_OPT);
+      0000C8 72 1F 50 5B      [ 1]  255 	bres	20571, #7
+                                    256 ;	lib/src/stm8s_flash.c: 262: FLASH->NCR2 |= FLASH_NCR2_NOPT;
+      0000CC 72 1E 50 5C      [ 1]  257 	bset	20572, #7
+                                    258 ;	lib/src/stm8s_flash.c: 263: }
+      0000D0 5B 02            [ 2]  259 	addw	sp, #2
+      0000D2 81               [ 4]  260 	ret
+                                    261 ;	lib/src/stm8s_flash.c: 270: void FLASH_EraseOptionByte(uint16_t Address)
+                                    262 ;	-----------------------------------------
+                                    263 ;	 function FLASH_EraseOptionByte
+                                    264 ;	-----------------------------------------
+      0000D3                        265 _FLASH_EraseOptionByte:
+                                    266 ;	lib/src/stm8s_flash.c: 276: FLASH->CR2 |= FLASH_CR2_OPT;
+      0000D3 72 1E 50 5B      [ 1]  267 	bset	20571, #7
+                                    268 ;	lib/src/stm8s_flash.c: 277: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NOPT);
+      0000D7 72 1F 50 5C      [ 1]  269 	bres	20572, #7
+                                    270 ;	lib/src/stm8s_flash.c: 280: if(Address == 0x4800)
+      0000DB 16 03            [ 2]  271 	ldw	y, (0x03, sp)
+                                    272 ;	lib/src/stm8s_flash.c: 283: *((NEAR uint8_t*)Address) = FLASH_CLEAR_BYTE;
+      0000DD 1E 03            [ 2]  273 	ldw	x, (0x03, sp)
+                                    274 ;	lib/src/stm8s_flash.c: 280: if(Address == 0x4800)
+      0000DF 90 A3 48 00      [ 2]  275 	cpw	y, #0x4800
+      0000E3 26 03            [ 1]  276 	jrne	00102$
+                                    277 ;	lib/src/stm8s_flash.c: 283: *((NEAR uint8_t*)Address) = FLASH_CLEAR_BYTE;
+      0000E5 7F               [ 1]  278 	clr	(x)
+      0000E6 20 07            [ 2]  279 	jra	00103$
+      0000E8                        280 00102$:
+                                    281 ;	lib/src/stm8s_flash.c: 288: *((NEAR uint8_t*)Address) = FLASH_CLEAR_BYTE;
+      0000E8 7F               [ 1]  282 	clr	(x)
+                                    283 ;	lib/src/stm8s_flash.c: 289: *((NEAR uint8_t*)((uint16_t)(Address + (uint16_t)1 ))) = FLASH_SET_BYTE;
+      0000E9 1E 03            [ 2]  284 	ldw	x, (0x03, sp)
+      0000EB 5C               [ 1]  285 	incw	x
+      0000EC A6 FF            [ 1]  286 	ld	a, #0xff
+      0000EE F7               [ 1]  287 	ld	(x), a
+      0000EF                        288 00103$:
+                                    289 ;	lib/src/stm8s_flash.c: 291: FLASH_WaitForLastOperation(FLASH_MEMTYPE_PROG);
+      0000EF 4B FD            [ 1]  290 	push	#0xfd
+      0000F1 CDr01r91         [ 4]  291 	call	_FLASH_WaitForLastOperation
+      0000F4 84               [ 1]  292 	pop	a
+                                    293 ;	lib/src/stm8s_flash.c: 294: FLASH->CR2 &= (uint8_t)(~FLASH_CR2_OPT);
+      0000F5 72 1F 50 5B      [ 1]  294 	bres	20571, #7
+                                    295 ;	lib/src/stm8s_flash.c: 295: FLASH->NCR2 |= FLASH_NCR2_NOPT;
+      0000F9 72 1E 50 5C      [ 1]  296 	bset	20572, #7
+                                    297 ;	lib/src/stm8s_flash.c: 296: }
+      0000FD 81               [ 4]  298 	ret
+                                    299 ;	lib/src/stm8s_flash.c: 303: uint16_t FLASH_ReadOptionByte(uint16_t Address)
+                                    300 ;	-----------------------------------------
+                                    301 ;	 function FLASH_ReadOptionByte
+                                    302 ;	-----------------------------------------
+      0000FE                        303 _FLASH_ReadOptionByte:
+      0000FE 52 03            [ 2]  304 	sub	sp, #3
+                                    305 ;	lib/src/stm8s_flash.c: 311: value_optbyte = *((NEAR uint8_t*)Address); /* Read option byte */
+      000100 1E 06            [ 2]  306 	ldw	x, (0x06, sp)
+      000102 F6               [ 1]  307 	ld	a, (x)
+      000103 6B 03            [ 1]  308 	ld	(0x03, sp), a
+                                    309 ;	lib/src/stm8s_flash.c: 312: value_optbyte_complement = *(((NEAR uint8_t*)Address) + 1); /* Read option byte complement */
+      000105 E6 01            [ 1]  310 	ld	a, (0x1, x)
+      000107 6B 01            [ 1]  311 	ld	(0x01, sp), a
+                                    312 ;	lib/src/stm8s_flash.c: 315: if(Address == 0x4800)
+      000109 16 06            [ 2]  313 	ldw	y, (0x06, sp)
+                                    314 ;	lib/src/stm8s_flash.c: 317: res_value =	 value_optbyte;
+      00010B 5F               [ 1]  315 	clrw	x
+      00010C 7B 03            [ 1]  316 	ld	a, (0x03, sp)
+      00010E 97               [ 1]  317 	ld	xl, a
+                                    318 ;	lib/src/stm8s_flash.c: 315: if(Address == 0x4800)
+      00010F 90 A3 48 00      [ 2]  319 	cpw	y, #0x4800
+      000113 27 18            [ 1]  320 	jreq	00106$
+                                    321 ;	lib/src/stm8s_flash.c: 317: res_value =	 value_optbyte;
+                                    322 ;	lib/src/stm8s_flash.c: 321: if(value_optbyte == (uint8_t)(~value_optbyte_complement))
+      000115 7B 01            [ 1]  323 	ld	a, (0x01, sp)
+      000117 43               [ 1]  324 	cpl	a
+      000118 11 03            [ 1]  325 	cp	a, (0x03, sp)
+      00011A 26 0E            [ 1]  326 	jrne	00102$
+                                    327 ;	lib/src/stm8s_flash.c: 323: res_value = (uint16_t)((uint16_t)value_optbyte << 8);
+      00011C 4F               [ 1]  328 	clr	a
+      00011D 02               [ 1]  329 	rlwa	x
+      00011E 1F 02            [ 2]  330 	ldw	(0x02, sp), x
+                                    331 ;	lib/src/stm8s_flash.c: 324: res_value = res_value | (uint16_t)value_optbyte_complement;
+      000120 7B 01            [ 1]  332 	ld	a, (0x01, sp)
+      000122 5F               [ 1]  333 	clrw	x
+      000123 1A 03            [ 1]  334 	or	a, (0x03, sp)
+      000125 02               [ 1]  335 	rlwa	x
+      000126 1A 02            [ 1]  336 	or	a, (0x02, sp)
+      000128 95               [ 1]  337 	ld	xh, a
+                                    338 ;	lib/src/stm8s_flash.c: 328: res_value = FLASH_OPTIONBYTE_ERROR;
+      000129 BC                     339 	.byte 0xbc
+      00012A                        340 00102$:
+      00012A AE 55 55         [ 2]  341 	ldw	x, #0x5555
+      00012D                        342 00106$:
+                                    343 ;	lib/src/stm8s_flash.c: 331: return(res_value);
+                                    344 ;	lib/src/stm8s_flash.c: 332: }
+      00012D 5B 03            [ 2]  345 	addw	sp, #3
+      00012F 81               [ 4]  346 	ret
+                                    347 ;	lib/src/stm8s_flash.c: 340: void FLASH_SetLowPowerMode(FLASH_LPMode_TypeDef FLASH_LPMode)
+                                    348 ;	-----------------------------------------
+                                    349 ;	 function FLASH_SetLowPowerMode
+                                    350 ;	-----------------------------------------
+      000130                        351 _FLASH_SetLowPowerMode:
+                                    352 ;	lib/src/stm8s_flash.c: 346: FLASH->CR1 &= (uint8_t)(~(FLASH_CR1_HALT | FLASH_CR1_AHALT));
+      000130 C6 50 5A         [ 1]  353 	ld	a, 0x505a
+      000133 A4 F3            [ 1]  354 	and	a, #0xf3
+      000135 C7 50 5A         [ 1]  355 	ld	0x505a, a
+                                    356 ;	lib/src/stm8s_flash.c: 349: FLASH->CR1 |= (uint8_t)FLASH_LPMode;
+      000138 C6 50 5A         [ 1]  357 	ld	a, 0x505a
+      00013B 1A 03            [ 1]  358 	or	a, (0x03, sp)
+      00013D C7 50 5A         [ 1]  359 	ld	0x505a, a
+                                    360 ;	lib/src/stm8s_flash.c: 350: }
+      000140 81               [ 4]  361 	ret
+                                    362 ;	lib/src/stm8s_flash.c: 358: void FLASH_SetProgrammingTime(FLASH_ProgramTime_TypeDef FLASH_ProgTime)
+                                    363 ;	-----------------------------------------
+                                    364 ;	 function FLASH_SetProgrammingTime
+                                    365 ;	-----------------------------------------
+      000141                        366 _FLASH_SetProgrammingTime:
+                                    367 ;	lib/src/stm8s_flash.c: 363: FLASH->CR1 &= (uint8_t)(~FLASH_CR1_FIX);
+      000141 C6 50 5A         [ 1]  368 	ld	a, 0x505a
+      000144 A4 FE            [ 1]  369 	and	a, #0xfe
+      000146 C7 50 5A         [ 1]  370 	ld	0x505a, a
+                                    371 ;	lib/src/stm8s_flash.c: 364: FLASH->CR1 |= (uint8_t)FLASH_ProgTime;
+      000149 C6 50 5A         [ 1]  372 	ld	a, 0x505a
+      00014C 1A 03            [ 1]  373 	or	a, (0x03, sp)
+      00014E C7 50 5A         [ 1]  374 	ld	0x505a, a
+                                    375 ;	lib/src/stm8s_flash.c: 365: }
+      000151 81               [ 4]  376 	ret
+                                    377 ;	lib/src/stm8s_flash.c: 372: FLASH_LPMode_TypeDef FLASH_GetLowPowerMode(void)
+                                    378 ;	-----------------------------------------
+                                    379 ;	 function FLASH_GetLowPowerMode
+                                    380 ;	-----------------------------------------
+      000152                        381 _FLASH_GetLowPowerMode:
+                                    382 ;	lib/src/stm8s_flash.c: 374: return((FLASH_LPMode_TypeDef)(FLASH->CR1 & (uint8_t)(FLASH_CR1_HALT | FLASH_CR1_AHALT)));
+      000152 C6 50 5A         [ 1]  383 	ld	a, 0x505a
+      000155 A4 0C            [ 1]  384 	and	a, #0x0c
+                                    385 ;	lib/src/stm8s_flash.c: 375: }
+      000157 81               [ 4]  386 	ret
+                                    387 ;	lib/src/stm8s_flash.c: 382: FLASH_ProgramTime_TypeDef FLASH_GetProgrammingTime(void)
+                                    388 ;	-----------------------------------------
+                                    389 ;	 function FLASH_GetProgrammingTime
+                                    390 ;	-----------------------------------------
+      000158                        391 _FLASH_GetProgrammingTime:
+                                    392 ;	lib/src/stm8s_flash.c: 384: return((FLASH_ProgramTime_TypeDef)(FLASH->CR1 & FLASH_CR1_FIX));
+      000158 C6 50 5A         [ 1]  393 	ld	a, 0x505a
+      00015B A4 01            [ 1]  394 	and	a, #0x01
+                                    395 ;	lib/src/stm8s_flash.c: 385: }
+      00015D 81               [ 4]  396 	ret
+                                    397 ;	lib/src/stm8s_flash.c: 392: uint32_t FLASH_GetBootSize(void)
+                                    398 ;	-----------------------------------------
+                                    399 ;	 function FLASH_GetBootSize
+                                    400 ;	-----------------------------------------
+      00015E                        401 _FLASH_GetBootSize:
+      00015E 52 04            [ 2]  402 	sub	sp, #4
+                                    403 ;	lib/src/stm8s_flash.c: 397: temp = (uint32_t)((uint32_t)FLASH->FPR * (uint32_t)512);
+      000160 C6 50 5D         [ 1]  404 	ld	a, 0x505d
+      000163 5F               [ 1]  405 	clrw	x
+      000164 0F 04            [ 1]  406 	clr	(0x04, sp)
+      000166 08 04            [ 1]  407 	sll	(0x04, sp)
+      000168 49               [ 1]  408 	rlc	a
+      000169 59               [ 2]  409 	rlcw	x
+      00016A 90 95            [ 1]  410 	ld	yh, a
+      00016C 7B 04            [ 1]  411 	ld	a, (0x04, sp)
+      00016E 90 97            [ 1]  412 	ld	yl, a
+                                    413 ;	lib/src/stm8s_flash.c: 400: if(FLASH->FPR == 0xFF)
+      000170 C6 50 5D         [ 1]  414 	ld	a, 0x505d
+      000173 4C               [ 1]  415 	inc	a
+      000174 26 0B            [ 1]  416 	jrne	00102$
+                                    417 ;	lib/src/stm8s_flash.c: 402: temp += 512;
+      000176 72 A9 02 00      [ 2]  418 	addw	y, #0x0200
+      00017A 9F               [ 1]  419 	ld	a, xl
+      00017B A9 00            [ 1]  420 	adc	a, #0x00
+      00017D 02               [ 1]  421 	rlwa	x
+      00017E A9 00            [ 1]  422 	adc	a, #0x00
+      000180 95               [ 1]  423 	ld	xh, a
+      000181                        424 00102$:
+                                    425 ;	lib/src/stm8s_flash.c: 406: return(temp);
+      000181 51               [ 1]  426 	exgw	x, y
+                                    427 ;	lib/src/stm8s_flash.c: 407: }
+      000182 5B 04            [ 2]  428 	addw	sp, #4
+      000184 81               [ 4]  429 	ret
+                                    430 ;	lib/src/stm8s_flash.c: 417: FlagStatus FLASH_GetFlagStatus(FLASH_Flag_TypeDef FLASH_FLAG)
+                                    431 ;	-----------------------------------------
+                                    432 ;	 function FLASH_GetFlagStatus
+                                    433 ;	-----------------------------------------
+      000185                        434 _FLASH_GetFlagStatus:
+                                    435 ;	lib/src/stm8s_flash.c: 424: if((FLASH->IAPSR & (uint8_t)FLASH_FLAG) != (uint8_t)RESET)
+      000185 C6 50 5F         [ 1]  436 	ld	a, 0x505f
+      000188 14 03            [ 1]  437 	and	a, (0x03, sp)
+      00018A 27 03            [ 1]  438 	jreq	00102$
+                                    439 ;	lib/src/stm8s_flash.c: 426: status = SET; /* FLASH_FLAG is set */
+      00018C A6 01            [ 1]  440 	ld	a, #0x01
+      00018E 81               [ 4]  441 	ret
+      00018F                        442 00102$:
+                                    443 ;	lib/src/stm8s_flash.c: 430: status = RESET; /* FLASH_FLAG is reset*/
+      00018F 4F               [ 1]  444 	clr	a
+                                    445 ;	lib/src/stm8s_flash.c: 434: return status;
+                                    446 ;	lib/src/stm8s_flash.c: 435: }
+      000190 81               [ 4]  447 	ret
+                                    448 ;	lib/src/stm8s_flash.c: 549: IN_RAM(FLASH_Status_TypeDef FLASH_WaitForLastOperation(FLASH_MemType_TypeDef FLASH_MemType))
+                                    449 ;	-----------------------------------------
+                                    450 ;	 function FLASH_WaitForLastOperation
+                                    451 ;	-----------------------------------------
+      000191                        452 _FLASH_WaitForLastOperation:
+                                    453 ;	lib/src/stm8s_flash.c: 551: uint8_t flagstatus = 0x00;
+      000191 4F               [ 1]  454 	clr	a
+                                    455 ;	lib/src/stm8s_flash.c: 577: while((flagstatus == 0x00) && (timeout != 0x00))
+      000192 5F               [ 1]  456 	clrw	x
+      000193 5A               [ 2]  457 	decw	x
+      000194                        458 00102$:
+      000194 4D               [ 1]  459 	tnz	a
+      000195 26 0B            [ 1]  460 	jrne	00104$
+      000197 5D               [ 2]  461 	tnzw	x
+      000198 27 08            [ 1]  462 	jreq	00104$
+                                    463 ;	lib/src/stm8s_flash.c: 579: flagstatus = (uint8_t)(FLASH->IAPSR & (FLASH_IAPSR_EOP | FLASH_IAPSR_WR_PG_DIS));
+      00019A C6 50 5F         [ 1]  464 	ld	a, 0x505f
+      00019D A4 05            [ 1]  465 	and	a, #0x05
+                                    466 ;	lib/src/stm8s_flash.c: 580: timeout--;
+      00019F 5A               [ 2]  467 	decw	x
+      0001A0 20 F2            [ 2]  468 	jra	00102$
+      0001A2                        469 00104$:
+                                    470 ;	lib/src/stm8s_flash.c: 584: if(timeout == 0x00 )
+      0001A2 5D               [ 2]  471 	tnzw	x
+      0001A3 27 01            [ 1]  472 	jreq	00132$
+      0001A5 81               [ 4]  473 	ret
+      0001A6                        474 00132$:
+                                    475 ;	lib/src/stm8s_flash.c: 586: flagstatus = FLASH_STATUS_TIMEOUT;
+      0001A6 A6 02            [ 1]  476 	ld	a, #0x02
+                                    477 ;	lib/src/stm8s_flash.c: 589: return((FLASH_Status_TypeDef)flagstatus);
+                                    478 ;	lib/src/stm8s_flash.c: 590: }
+      0001A8 81               [ 4]  479 	ret
+                                    480 ;	lib/src/stm8s_flash.c: 599: IN_RAM(void FLASH_EraseBlock(uint16_t BlockNum, FLASH_MemType_TypeDef FLASH_MemType))
+                                    481 ;	-----------------------------------------
+                                    482 ;	 function FLASH_EraseBlock
+                                    483 ;	-----------------------------------------
+      0001A9                        484 _FLASH_EraseBlock:
+      0001A9 52 06            [ 2]  485 	sub	sp, #6
+                                    486 ;	lib/src/stm8s_flash.c: 612: if(FLASH_MemType == FLASH_MEMTYPE_PROG)
+      0001AB 7B 0B            [ 1]  487 	ld	a, (0x0b, sp)
+      0001AD A1 FD            [ 1]  488 	cp	a, #0xfd
+      0001AF 26 0A            [ 1]  489 	jrne	00102$
+                                    490 ;	lib/src/stm8s_flash.c: 615: startaddress = FLASH_PROG_START_PHYSICAL_ADDRESS;
+      0001B1 AE 80 00         [ 2]  491 	ldw	x, #0x8000
+      0001B4 1F 03            [ 2]  492 	ldw	(0x03, sp), x
+      0001B6 5F               [ 1]  493 	clrw	x
+      0001B7 1F 01            [ 2]  494 	ldw	(0x01, sp), x
+      0001B9 20 08            [ 2]  495 	jra	00103$
+      0001BB                        496 00102$:
+                                    497 ;	lib/src/stm8s_flash.c: 620: startaddress = FLASH_DATA_START_PHYSICAL_ADDRESS;
+      0001BB AE 40 00         [ 2]  498 	ldw	x, #0x4000
+      0001BE 1F 03            [ 2]  499 	ldw	(0x03, sp), x
+      0001C0 5F               [ 1]  500 	clrw	x
+      0001C1 1F 01            [ 2]  501 	ldw	(0x01, sp), x
+      0001C3                        502 00103$:
+                                    503 ;	lib/src/stm8s_flash.c: 628: pwFlash = (PointerAttr uint32_t *)(MemoryAddressCast)(startaddress + ((uint32_t)BlockNum * FLASH_BLOCK_SIZE));
+      0001C3 1E 09            [ 2]  504 	ldw	x, (0x09, sp)
+      0001C5 58               [ 2]  505 	sllw	x
+      0001C6 58               [ 2]  506 	sllw	x
+      0001C7 58               [ 2]  507 	sllw	x
+      0001C8 58               [ 2]  508 	sllw	x
+      0001C9 58               [ 2]  509 	sllw	x
+      0001CA 58               [ 2]  510 	sllw	x
+      0001CB 1F 05            [ 2]  511 	ldw	(0x05, sp), x
+      0001CD 72 FB 03         [ 2]  512 	addw	x, (0x03, sp)
+                                    513 ;	lib/src/stm8s_flash.c: 632: FLASH->CR2 |= FLASH_CR2_ERASE;
+      0001D0 72 1A 50 5B      [ 1]  514 	bset	20571, #5
+                                    515 ;	lib/src/stm8s_flash.c: 633: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NERASE);
+      0001D4 72 1B 50 5C      [ 1]  516 	bres	20572, #5
+                                    517 ;	lib/src/stm8s_flash.c: 637: *pwFlash = (uint32_t)0;
+      0001D8 6F 03            [ 1]  518 	clr	(0x3, x)
+      0001DA 6F 02            [ 1]  519 	clr	(0x2, x)
+      0001DC 6F 01            [ 1]  520 	clr	(0x1, x)
+      0001DE 7F               [ 1]  521 	clr	(x)
+                                    522 ;	lib/src/stm8s_flash.c: 645: }
+      0001DF 5B 06            [ 2]  523 	addw	sp, #6
+      0001E1 81               [ 4]  524 	ret
+                                    525 ;	lib/src/stm8s_flash.c: 656: IN_RAM(void FLASH_ProgramBlock(uint16_t BlockNum, FLASH_MemType_TypeDef FLASH_MemType,
+                                    526 ;	-----------------------------------------
+                                    527 ;	 function FLASH_ProgramBlock
+                                    528 ;	-----------------------------------------
+      0001E2                        529 _FLASH_ProgramBlock:
+      0001E2 52 08            [ 2]  530 	sub	sp, #8
+                                    531 ;	lib/src/stm8s_flash.c: 665: if(FLASH_MemType == FLASH_MEMTYPE_PROG)
+      0001E4 7B 0D            [ 1]  532 	ld	a, (0x0d, sp)
+      0001E6 A1 FD            [ 1]  533 	cp	a, #0xfd
+      0001E8 26 08            [ 1]  534 	jrne	00102$
+                                    535 ;	lib/src/stm8s_flash.c: 668: startaddress = FLASH_PROG_START_PHYSICAL_ADDRESS;
+      0001EA AE 80 00         [ 2]  536 	ldw	x, #0x8000
+      0001ED 1F 03            [ 2]  537 	ldw	(0x03, sp), x
+      0001EF 5F               [ 1]  538 	clrw	x
+      0001F0 20 06            [ 2]  539 	jra	00103$
+      0001F2                        540 00102$:
+                                    541 ;	lib/src/stm8s_flash.c: 673: startaddress = FLASH_DATA_START_PHYSICAL_ADDRESS;
+      0001F2 AE 40 00         [ 2]  542 	ldw	x, #0x4000
+      0001F5 1F 03            [ 2]  543 	ldw	(0x03, sp), x
+      0001F7 5F               [ 1]  544 	clrw	x
+      0001F8                        545 00103$:
+                                    546 ;	lib/src/stm8s_flash.c: 677: startaddress = startaddress + ((uint32_t)BlockNum * FLASH_BLOCK_SIZE);
+      0001F8 16 0B            [ 2]  547 	ldw	y, (0x0b, sp)
+      0001FA 17 07            [ 2]  548 	ldw	(0x07, sp), y
+      0001FC 90 5F            [ 1]  549 	clrw	y
+      0001FE 17 05            [ 2]  550 	ldw	(0x05, sp), y
+      000200 16 07            [ 2]  551 	ldw	y, (0x07, sp)
+      000202 A6 06            [ 1]  552 	ld	a, #0x06
+      000204                        553 00131$:
+      000204 90 58            [ 2]  554 	sllw	y
+      000206 09 06            [ 1]  555 	rlc	(0x06, sp)
+      000208 09 05            [ 1]  556 	rlc	(0x05, sp)
+      00020A 4A               [ 1]  557 	dec	a
+      00020B 26 F7            [ 1]  558 	jrne	00131$
+      00020D 72 F9 03         [ 2]  559 	addw	y, (0x03, sp)
+      000210 9F               [ 1]  560 	ld	a, xl
+      000211 19 06            [ 1]  561 	adc	a, (0x06, sp)
+      000213 02               [ 1]  562 	rlwa	x
+      000214 19 05            [ 1]  563 	adc	a, (0x05, sp)
+      000216 95               [ 1]  564 	ld	xh, a
+      000217 17 03            [ 2]  565 	ldw	(0x03, sp), y
+      000219 1F 01            [ 2]  566 	ldw	(0x01, sp), x
+                                    567 ;	lib/src/stm8s_flash.c: 683: FLASH->CR2 |= FLASH_CR2_PRG;
+      00021B C6 50 5B         [ 1]  568 	ld	a, 0x505b
+                                    569 ;	lib/src/stm8s_flash.c: 680: if(FLASH_ProgMode == FLASH_PROGRAMMODE_STANDARD)
+      00021E 0D 0E            [ 1]  570 	tnz	(0x0e, sp)
+      000220 26 0B            [ 1]  571 	jrne	00105$
+                                    572 ;	lib/src/stm8s_flash.c: 683: FLASH->CR2 |= FLASH_CR2_PRG;
+      000222 AA 01            [ 1]  573 	or	a, #0x01
+      000224 C7 50 5B         [ 1]  574 	ld	0x505b, a
+                                    575 ;	lib/src/stm8s_flash.c: 684: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NPRG);
+      000227 72 11 50 5C      [ 1]  576 	bres	20572, #0
+      00022B 20 09            [ 2]  577 	jra	00114$
+      00022D                        578 00105$:
+                                    579 ;	lib/src/stm8s_flash.c: 689: FLASH->CR2 |= FLASH_CR2_FPRG;
+      00022D AA 10            [ 1]  580 	or	a, #0x10
+      00022F C7 50 5B         [ 1]  581 	ld	0x505b, a
+                                    582 ;	lib/src/stm8s_flash.c: 690: FLASH->NCR2 &= (uint8_t)(~FLASH_NCR2_NFPRG);
+      000232 72 19 50 5C      [ 1]  583 	bres	20572, #4
+                                    584 ;	lib/src/stm8s_flash.c: 694: for(Count = 0; Count < FLASH_BLOCK_SIZE; Count++)
+      000236                        585 00114$:
+      000236 90 5F            [ 1]  586 	clrw	y
+      000238                        587 00108$:
+                                    588 ;	lib/src/stm8s_flash.c: 696: *((PointerAttr uint8_t*) (MemoryAddressCast)startaddress + Count) = ((uint8_t)(Buffer[Count]));
+      000238 1E 03            [ 2]  589 	ldw	x, (0x03, sp)
+      00023A 1F 05            [ 2]  590 	ldw	(0x05, sp), x
+      00023C 93               [ 1]  591 	ldw	x, y
+      00023D 72 FB 05         [ 2]  592 	addw	x, (0x05, sp)
+      000240 1F 07            [ 2]  593 	ldw	(0x07, sp), x
+      000242 93               [ 1]  594 	ldw	x, y
+      000243 72 FB 0F         [ 2]  595 	addw	x, (0x0f, sp)
+      000246 F6               [ 1]  596 	ld	a, (x)
+      000247 1E 07            [ 2]  597 	ldw	x, (0x07, sp)
+      000249 F7               [ 1]  598 	ld	(x), a
+                                    599 ;	lib/src/stm8s_flash.c: 694: for(Count = 0; Count < FLASH_BLOCK_SIZE; Count++)
+      00024A 90 5C            [ 1]  600 	incw	y
+      00024C 90 A3 00 40      [ 2]  601 	cpw	y, #0x0040
+      000250 25 E6            [ 1]  602 	jrc	00108$
+                                    603 ;	lib/src/stm8s_flash.c: 698: }
+      000252 5B 08            [ 2]  604 	addw	sp, #8
+      000254 81               [ 4]  605 	ret
+                                    606 	.area CODE
+                                    607 	.area CONST
+                                    608 	.area INITIALIZER
+                                    609 	.area CABS (ABS)

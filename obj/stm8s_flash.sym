@@ -1,0 +1,47 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000001 L
+  9 _FLASH_DeInit                                                  000021 GR
+  9 _FLASH_EraseBlock                                              0001A9 GR
+  9 _FLASH_EraseByte                                               00004C GR
+  9 _FLASH_EraseOptionByte                                         0000D3 GR
+  9 _FLASH_GetBootSize                                             00015E GR
+  9 _FLASH_GetFlagStatus                                           000185 GR
+  9 _FLASH_GetLowPowerMode                                         000152 GR
+  9 _FLASH_GetProgrammingTime                                      000158 GR
+  9 _FLASH_ITConfig                                                000039 GR
+  9 _FLASH_Lock                                                    000018 GR
+  9 _FLASH_ProgramBlock                                            0001E2 GR
+  9 _FLASH_ProgramByte                                             000050 GR
+  9 _FLASH_ProgramOptionByte                                       000097 GR
+  9 _FLASH_ProgramWord                                             00005A GR
+  9 _FLASH_ReadByte                                                000056 GR
+  9 _FLASH_ReadOptionByte                                          0000FE GR
+  9 _FLASH_SetLowPowerMode                                         000130 GR
+  9 _FLASH_SetProgrammingTime                                      000141 GR
+  9 _FLASH_Unlock                                                  000000 GR
+  9 _FLASH_WaitForLastOperation                                    000191 GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (STMicroelectronics STM8), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size      0   flags    0
+   1 DATA                                       size      0   flags    0
+   2 INITIALIZED                                size      0   flags    0
+   3 DABS                                       size      0   flags    8
+   4 HOME                                       size      0   flags    0
+   5 GSINIT                                     size      0   flags    0
+   6 GSFINAL                                    size      0   flags    0
+   7 CONST                                      size      0   flags    0
+   8 INITIALIZER                                size      0   flags    0
+   9 CODE                                       size    255   flags    0
+   A CABS                                       size      0   flags    8
+
